@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="配色、文字、余白と参考例をデザインキットとして保存し、版を比較する">
+  <title>デザインキット | デザインライブラリ</title>
+  <link rel="stylesheet" href="/library.css">
+  <link rel="stylesheet" href="/kits.css">
+  <script src="/workbench/preview.js" defer></script>
+  <script src="/kit-zip.js" defer></script>
+  <script src="/kits.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">内容へ移動</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="デザインライブラリのホーム"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true"><path d="M3 5h7v14H3zM14 5h7v6h-7zM14 15h7v4h-7z" stroke="currentColor" stroke-width="1.5"/></svg><span>デザインライブラリ</span></a>
+    <nav class="site-nav" aria-label="ライブラリ"><a href="/">プロジェクト</a><a href="/kits" aria-current="page">デザインキット</a></nav>
+  </header>
+  <main class="library kits-library" id="mainContent" tabindex="-1">
+    <nav class="breadcrumb" id="kitBreadcrumb" aria-label="現在の場所" hidden><a href="/kits">デザインキット</a><span aria-hidden="true">/</span><span id="kitBreadcrumbCurrent" aria-current="page"></span></nav>
+    <div class="library-heading"><div class="heading-copy"><h1 id="kitTitle" tabindex="-1">デザインキット</h1><p id="kitDescription" hidden></p></div><div class="heading-actions" id="kitActions"><button class="solid-button" id="createKit" type="button">キットを作成</button></div></div>
+    <div class="library-notice" id="kitNotice" role="alert" hidden><p id="kitNoticeText"></p><button class="quiet-button" id="retryKit" type="button">再読み込み</button></div>
+    <div class="loading-state" id="kitLoading" role="status">デザインキットを読み込んでいます</div>
+    <section id="kitsOverview" aria-label="保存したキット" hidden><ul class="kit-list" id="kitList"></ul><div class="empty-state" id="kitsEmpty" hidden><h2>キットはまだありません</h2><p>参考にする作品と案を選び、配色・文字・余白と使い方をまとめます。</p><button class="quiet-button" id="emptyCreateKit" type="button">キットを作成</button></div></section>
+
+    <section id="kitDetail" hidden>
+      <div class="kit-version-bar"><label for="kitVersion">表示する版 <select id="kitVersion"></select></label><p id="versionDate"></p><div class="version-actions"><button class="quiet-button" id="compareVersions" type="button">版を比較</button><button class="quiet-button" id="exportKit" type="button">この版をZIPで保存</button><button class="solid-button" id="editKit" type="button">この版から新しい版を作る</button></div></div>
+      <p class="version-summary" id="versionSummary" hidden></p>
+      <div class="kit-read-layout"><section class="kit-section"><h2>トークン</h2><div class="token-catalog" id="tokenCatalog"></div></section><section class="kit-section"><h2>使い方・レイアウトのルール</h2><div class="kit-guide" id="kitGuide"></div></section></div>
+      <section class="kit-section examples-section"><div class="section-heading"><h2>参考例</h2><span id="exampleCount"></span></div><div class="kit-examples" id="kitExamples"></div></section>
+    </section>
+
+    <section id="kitCompare" hidden>
+      <div class="compare-toolbar"><label class="form-field" for="compareBefore"><span>変更前</span><select id="compareBefore"></select></label><span class="compare-direction" aria-hidden="true">→</span><label class="form-field" for="compareAfter"><span>変更後</span><select id="compareAfter"></select></label><button class="quiet-button" id="closeCompare" type="button">キットへ戻る</button></div>
+      <section class="kit-section"><h2>変更点</h2><div id="tokenChanges" class="token-changes"></div><div id="ruleChanges" class="rule-changes"></div></section>
+      <section class="kit-section"><div class="section-heading"><h2>同じ参考例で比較</h2><label class="compare-example-label" for="compareExample"><span>参考例</span><select id="compareExample"></select></label></div><p class="field-hint compare-hint">選んだ参考例に、それぞれの版のトークンを適用しています。</p><div class="compare-previews" id="comparePreviews"></div></section>
+    </section>
+
+    <section id="kitEditor" hidden>
+      <section id="sourcePicker" class="kit-section source-picker"><div class="section-heading"><h2>参考にする作品と案</h2><span>最初に基準の案を選びます</span></div>
+        <div class="source-pick-row"><label class="form-field" for="sourceDesign"><span>保存した作品</span><select id="sourceDesign"><option value="">作品を選択</option></select></label><label class="form-field" for="sourceVariant"><span>案</span><select id="sourceVariant" disabled><option value="">先に作品を選択</option></select></label><button class="quiet-button" id="addSource" type="button" disabled>参考例に追加</button></div>
+        <p class="field-hint" id="sourceHint">基準の案に宣言された配色・文字・余白をトークンの初期値にします。</p><div id="selectedSources" class="selected-sources"></div><div class="prepare-footer"><button class="quiet-button" id="cancelSources" type="button">キャンセル</button><button class="solid-button" id="prepareKit" type="button" disabled>選んだ案から下書きを用意</button></div>
+      </section>
+      <form id="kitForm" hidden>
+        <div class="editor-intro" id="editorIntro"></div>
+        <div class="kit-basics"><label class="form-field" for="kitName"><span>キット名</span><input id="kitName" name="name" required maxlength="300" autocomplete="off" placeholder="例：読書アプリの基本"></label><label class="form-field" for="kitDraftDescription"><span>説明 <small>任意</small></span><input id="kitDraftDescription" name="description" maxlength="5000" autocomplete="off"></label></div>
+        <section class="kit-section"><div class="section-heading"><h2>トークン</h2><button class="quiet-button" id="addToken" type="button">トークンを追加</button></div><p class="field-hint token-editor-hint">名前はCSS変数名です（先頭の -- は不要）。サイズには px・rem などの単位を付けます。</p><div class="token-editor" id="tokenEditor"></div></section>
+        <section class="kit-section"><label class="form-field" for="kitRules"><span class="field-heading">使い方・レイアウトのルール</span><textarea id="kitRules" name="rules" rows="7" maxlength="50000" placeholder="例：余白は24pxを基本にする。強調色は主な操作に使う。"></textarea></label></section>
+        <section class="kit-section"><div class="section-heading"><h2>参考例</h2><button class="quiet-button" id="refreshDraftPreviews" type="button">入力したトークンでプレビュー</button></div><div class="kit-examples" id="draftExamples"></div></section>
+        <label class="form-field summary-field" id="summaryField" for="kitChangeSummary" hidden><span>この版の変更メモ <small>任意</small></span><input id="kitChangeSummary" maxlength="1000" autocomplete="off" placeholder="例：アクセントと本文サイズを調整"></label>
+        <div class="form-message" id="kitFormError" role="alert" hidden></div><div class="kit-conflict" id="kitConflict" hidden><h2>現在保存されている版</h2><div id="kitConflictCurrent"></div><div class="token-catalog" id="kitConflictTokens"></div><div class="kit-guide" id="kitConflictRules"></div><a id="kitConflictLink" target="_blank" rel="noopener">現在の版を別タブで開く</a></div>
+        <div class="editor-footer"><p id="kitSaveHint">保存すると v1 が作成されます。</p><div><button class="quiet-button" id="cancelEditor" type="button">キャンセル</button><button class="solid-button" id="saveKit" type="submit">v1 を保存</button></div></div>
+      </form>
+      <div class="form-message" id="sourceError" role="alert" hidden></div>
+    </section>
+    <p class="sr-only" id="kitStatus" role="status" aria-live="polite"></p>
+  </main>
+  <dialog class="library-dialog kit-preview-dialog" id="previewDialog" aria-labelledby="previewDialogTitle"><div class="dialog-heading"><h2 id="previewDialogTitle">参考例</h2><button class="icon-button" id="closePreview" type="button" aria-label="プレビューを閉じる">×</button></div><div id="largePreview"></div></dialog>
+</body>
+</html>

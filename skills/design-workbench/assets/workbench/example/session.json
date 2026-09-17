@@ -1,0 +1,161 @@
+{
+  "version": 2,
+  "id": "yorimichi-astra-sample",
+  "title": "週末の展覧会ガイド",
+  "sample": true,
+  "designer": {
+    "model": "gpt-6-astra",
+    "role": "design-author"
+  },
+  "brief": {
+    "purpose": "今週末に訪ねたい展覧会を見つけ、気になる場所を保存する。",
+    "audience": "東京の街歩きとアートを楽しむ人",
+    "platform": "スマートフォン中心。週末の予定はデスクトップでも。",
+    "mood": "親しみやすく、作品の個性が伝わり、文字が読みやすい。",
+    "avoid": "説明だらけの画面、同じカードの繰り返し、作品より目立つ操作部。"
+  },
+  "selectedId": null,
+  "viewport": {
+    "preset": "mobile",
+    "width": 390,
+    "height": 760
+  },
+  "view": {
+    "mode": "compare",
+    "activeId": "A"
+  },
+  "variants": [
+    {
+      "id": "A",
+      "name": "展示室",
+      "summary": "一枚の絵から、予定を決める。",
+      "rationale": "作品を大きく見せてから会場情報へ。静かな文字組みと余白で、展覧会そのものを主役にします。",
+      "tokens": {
+        "accent": "#4856a0",
+        "background": "#fdfdfc",
+        "text": "#333541",
+        "spacing": 25,
+        "fontSize": 16,
+        "radius": 0
+      },
+      "baselineTokens": {
+        "accent": "#4856a0",
+        "background": "#fdfdfc",
+        "text": "#333541",
+        "spacing": 25,
+        "fontSize": 16,
+        "radius": 0
+      },
+      "tweakValues": {
+        "titleSize": 36,
+        "artHeight": 220,
+        "type": "serif",
+        "layout": "relaxed"
+      },
+      "baselineTweakValues": {
+        "titleSize": 36,
+        "artHeight": 220,
+        "type": "serif",
+        "layout": "relaxed"
+      },
+      "notes": "",
+      "designer": {
+        "model": "gpt-6-astra",
+        "role": "design-author"
+      },
+      "sources": {
+        "html": "A/index.html",
+        "css": "A/style.css",
+        "controls": "A/controls.json"
+      }
+    },
+    {
+      "id": "B",
+      "name": "散策手帳",
+      "summary": "場所と時間を、すぐ見渡す。",
+      "rationale": "会場・開館時間・料金を揃えて一覧に。デスクトップではエリアの概念図を添え、街を歩く予定を組みやすくします。",
+      "tokens": {
+        "accent": "#3d717b",
+        "background": "#fbfdfd",
+        "text": "#344f5b",
+        "spacing": 23,
+        "fontSize": 16,
+        "radius": 3
+      },
+      "baselineTokens": {
+        "accent": "#3d717b",
+        "background": "#fbfdfd",
+        "text": "#344f5b",
+        "spacing": 23,
+        "fontSize": 16,
+        "radius": 3
+      },
+      "tweakValues": {
+        "density": 27,
+        "thumbnail": 144,
+        "layout": "map",
+        "thumbnails": true
+      },
+      "baselineTweakValues": {
+        "density": 27,
+        "thumbnail": 144,
+        "layout": "map",
+        "thumbnails": true
+      },
+      "notes": "",
+      "designer": {
+        "model": "gpt-6-astra",
+        "role": "design-author"
+      },
+      "sources": {
+        "html": "B/index.html",
+        "css": "B/style.css",
+        "controls": "B/controls.json"
+      }
+    },
+    {
+      "id": "C",
+      "name": "ポスター",
+      "summary": "好きな色から、出かけよう。",
+      "rationale": "柔らかな藤色の面とポスターの色を対比。見た目から気になる展覧会を探し、短い説明で次の行動につなげます。",
+      "tokens": {
+        "accent": "#805392",
+        "background": "#eee4f2",
+        "text": "#624471",
+        "spacing": 24,
+        "fontSize": 16,
+        "radius": 2
+      },
+      "baselineTokens": {
+        "accent": "#805392",
+        "background": "#eee4f2",
+        "text": "#624471",
+        "spacing": 24,
+        "fontSize": 16,
+        "radius": 2
+      },
+      "tweakValues": {
+        "titleSize": 60,
+        "posterHeight": 290,
+        "layout": "posters",
+        "details": true
+      },
+      "baselineTweakValues": {
+        "titleSize": 60,
+        "posterHeight": 290,
+        "layout": "posters",
+        "details": true
+      },
+      "notes": "",
+      "designer": {
+        "model": "gpt-6-astra",
+        "role": "design-author"
+      },
+      "sources": {
+        "html": "C/index.html",
+        "css": "C/style.css",
+        "controls": "C/controls.json"
+      }
+    }
+  ]
+}

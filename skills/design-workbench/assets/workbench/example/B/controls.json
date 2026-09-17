@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "tokens": {
+    "accent": "#3d717b",
+    "background": "#fbfdfd",
+    "text": "#344f5b",
+    "spacing": 23,
+    "fontSize": 16,
+    "radius": 3
+  },
+  "tweaks": [
+    {
+      "id": "density",
+      "label": "展覧会の間隔",
+      "type": "range",
+      "cssVar": "--row-space",
+      "default": 27,
+      "min": 15,
+      "max": 42,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "id": "thumbnail",
+      "label": "作品サムネイル",
+      "type": "range",
+      "cssVar": "--thumb-size",
+      "default": 144,
+      "min": 110,
+      "max": 175,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "id": "layout",
+      "label": "デスクトップの構成",
+      "type": "select",
+      "attribute": "data-layout",
+      "default": "map",
+      "options": [
+        {
+          "value": "map",
+          "label": "エリア付き"
+        },
+        {
+          "value": "wide",
+          "label": "一覧のみ"
+        }
+      ]
+    },
+    {
+      "id": "thumbnails",
+      "label": "作品を表示",
+      "type": "toggle",
+      "attribute": "data-thumbnails",
+      "default": true
+    }
+  ]
+}

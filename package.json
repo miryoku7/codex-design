@@ -1,0 +1,30 @@
+{
+  "name": "codex-design",
+  "version": "0.1.0",
+  "description": "A local design library and Codex Skill for comparing, refining, and saving AI-authored designs.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare-assets": "node scripts/prepare-assets.mjs",
+    "dev": "npm run prepare-assets && wrangler dev --local --ip 127.0.0.1 --port 8787",
+    "db:migrate": "wrangler d1 migrations apply codex-design-library --local",
+    "types": "wrangler types",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/library.test.mjs tests/kits.test.mjs && python3 tests/test_library_cli.py"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": { "sharp": "0.35.4" },
+  "dependencies": {
+    "hono": "^4.13.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260910.1",
+    "esbuild": "^0.28.2",
+    "miniflare": "^5.20260908.0-alpha",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.130.0"
+  }
+}

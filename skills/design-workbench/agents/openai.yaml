@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Workbench · Astra"
+  short_description: "Astraがデザインと画像素材を制作し、ブラウザで比較・微調整して実装へ引き継ぐ"
+  default_prompt: "$design-workbench で、まず作りたい画面と好みを聞き、Astraが制作する3案をブラウザで比較・微調整できるようにして。LPなど画像が活きる画面では、人物・利用シーン・商品などの素材を自分から画像生成し、実際の案に組み込んで。"

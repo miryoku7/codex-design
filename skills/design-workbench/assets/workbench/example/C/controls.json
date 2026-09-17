@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "tokens": {
+    "accent": "#805392",
+    "background": "#eee4f2",
+    "text": "#624471",
+    "spacing": 24,
+    "fontSize": 16,
+    "radius": 2
+  },
+  "tweaks": [
+    {
+      "id": "titleSize",
+      "label": "見出しの大きさ",
+      "type": "range",
+      "cssVar": "--cover-size",
+      "default": 60,
+      "min": 48,
+      "max": 76,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "id": "posterHeight",
+      "label": "ポスターの高さ",
+      "type": "range",
+      "cssVar": "--poster-height",
+      "default": 290,
+      "min": 230,
+      "max": 350,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "id": "layout",
+      "label": "展覧会の見せ方",
+      "type": "select",
+      "attribute": "data-layout",
+      "default": "posters",
+      "options": [
+        {
+          "value": "posters",
+          "label": "作品を大きく"
+        },
+        {
+          "value": "list",
+          "label": "コンパクト"
+        }
+      ]
+    },
+    {
+      "id": "details",
+      "label": "展覧会の説明",
+      "type": "toggle",
+      "attribute": "data-details",
+      "default": true
+    }
+  ]
+}

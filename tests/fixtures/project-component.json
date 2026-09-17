@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "id": "project-component-sample",
+  "title": "読書カードの比較（サンプル）",
+  "sample": true,
+  "designer": {
+    "model": "gpt-6-astra",
+    "role": "design-author"
+  },
+  "brief": {
+    "purpose": "読みかけの本を見つけ、前回の続きから読むためのカード。",
+    "audience": "数冊を並行して読む人",
+    "platform": "Webの本棚・読書リスト内のコンポーネント。560 × 420で比較。",
+    "mood": "静かで読みやすく、表紙と進み具合がすぐ分かる。",
+    "avoid": "架空の推薦評価、過剰な装飾、プレビュー内の実行スクリプト。"
+  },
+  "selectedId": null,
+  "viewport": {
+    "preset": "custom",
+    "width": 560,
+    "height": 420
+  },
+  "view": {
+    "mode": "compare",
+    "activeId": "A"
+  },
+  "variants": [
+    {
+      "id": "A",
+      "name": "本棚のカード",
+      "summary": "表紙と読書の進み具合を並べる。",
+      "rationale": "表紙を入口に、本の名前と続きを読む操作をまとめた横並びのカード。読んでいる本を選ぶ場面に使います。",
+      "html": "<main class=\"sample-stage\"><p class=\"sample-label\">読書カード / サンプル</p><article class=\"book-card\"><div class=\"book-cover\" aria-hidden=\"true\"><span>ESSAYS</span><strong>余白を<br>読む</strong><i></i><small>青井 しおり</small></div><div class=\"book-info\"><p class=\"category\">エッセイ</p><h1>余白を読む</h1><p class=\"author\">青井 しおり</p><p class=\"description\">日々の小さな発見を集めた、<br>読書の合間にひらく一冊。</p><div class=\"reading-progress\"><div class=\"progress-label\"><span>読んだページ</span><strong>72 <span>/ 240</span></strong></div><div class=\"progress-track\"><span></span></div></div><button type=\"button\">続きを読む <span aria-hidden=\"true\">→</span></button></div></article></main>",
+      "css": "body{display:grid;place-items:center;min-height:100vh}p,h1{margin:0}.sample-stage{width:min(100% - 48px,480px)}.sample-label{font-size:11px;color:#768076;margin-bottom:15px}.book-card{display:flex;align-items:center;gap:24px;background:#fff;padding:var(--spacing);border-radius:var(--radius)}.book-cover{width:var(--cover-width);height:188px;flex-shrink:0;background:#d9e2d1;color:#354932;padding:15px 13px;display:flex;flex-direction:column;position:relative;overflow:hidden}.book-cover>span{font-size:8px;letter-spacing:2px}.book-cover strong{font-size:27px;line-height:1.5;font-weight:500;letter-spacing:3px;margin-top:11px}.book-cover small{font-size:8px;letter-spacing:1px;margin-top:auto;z-index:1}.book-cover i{position:absolute;width:120px;height:120px;border:1px solid #6f886750;border-radius:50%;top:87px;left:57px}.book-info{min-width:0;flex:1}.category{font-size:10px;color:#778273;margin-bottom:5px}h1{font-size:calc(var(--font-size) + 7px);line-height:1.5;font-weight:600;letter-spacing:.03em}.author{font-size:12px;color:#7b8179;margin-top:4px}.description{font-size:11px;line-height:1.85;color:#747c73;margin-top:13px}.reading-progress{margin-top:21px}.progress-label{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:10px;color:#7b8278}.progress-label strong{font-size:13px;font-weight:500;color:var(--text)}.progress-label strong span{font-size:10px;color:#858a82}.progress-track{height:4px;background:#edf0e9;border-radius:4px;margin-top:8px;overflow:hidden}.progress-track>span{display:block;width:30%;height:100%;background:var(--accent)}button{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:var(--accent);color:#fff;border-radius:5px;padding:10px 12px;margin-top:18px;font-size:11px}html[data-description=\"false\"] .description{display:none}@media(max-width:380px){.sample-stage{width:calc(100% - 28px)}.book-card{gap:16px;padding:18px}.book-cover{width:90px;height:165px}h1{font-size:19px}.description br{display:none}}",
+      "tokens": {
+        "accent": "#486257",
+        "background": "#f3f4f0",
+        "text": "#2b342e",
+        "spacing": 24,
+        "fontSize": 15,
+        "radius": 10
+      },
+      "baselineTokens": {
+        "accent": "#486257",
+        "background": "#f3f4f0",
+        "text": "#2b342e",
+        "spacing": 24,
+        "fontSize": 15,
+        "radius": 10
+      },
+      "tweaks": [
+        {
+          "id": "coverWidth",
+          "label": "表紙の幅",
+          "type": "range",
+          "cssVar": "--cover-width",
+          "default": 122,
+          "min": 94,
+          "max": 138,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "id": "description",
+          "label": "本の紹介文",
+          "type": "toggle",
+          "attribute": "data-description",
+          "default": true
+        }
+      ],
+      "tweakValues": {
+        "description": true,
+        "coverWidth": 122
+      },
+      "baselineTweakValues": {
+        "description": true,
+        "coverWidth": 122
+      },
+      "notes": "",
+      "designer": {
+        "model": "gpt-6-astra",
+        "role": "design-author"
+      }
+    },
+    {
+      "id": "B",
+      "name": "読書リスト",
+      "summary": "本の情報と進捗を横長に揃える。",
+      "rationale": "小さな表紙と書誌情報を一段に揃え、進み具合と続きの操作をカードの下段に置きます。複数の本を一覧で見渡す場面に使います。",
+      "html": "<main class=\"sample-stage\"><p class=\"sample-label\">読書カード / サンプル</p><article class=\"book-card\"><div class=\"book-cover\" aria-hidden=\"true\"><span>ESSAYS</span><strong>余白を<br>読む</strong><i></i><small>青井 しおり</small></div><div class=\"book-info\"><p class=\"category\">エッセイ</p><h1>余白を読む</h1><p class=\"author\">青井 しおり</p><p class=\"description\">日々の小さな発見を集めた、<br>読書の合間にひらく一冊。</p><div class=\"reading-progress\"><div class=\"progress-label\"><span>読んだページ</span><strong>72 <span>/ 240</span></strong></div><div class=\"progress-track\"><span></span></div></div><button type=\"button\">続きを読む <span aria-hidden=\"true\">→</span></button></div></article></main>",
+      "css": "body{display:grid;place-items:center;min-height:100vh}p,h1{margin:0}.sample-stage{width:min(100% - 48px,480px)}.sample-label{font-size:11px;color:#768076;margin-bottom:15px}.book-card{display:flex;align-items:center;gap:24px;background:#fff;padding:var(--spacing);border-radius:var(--radius)}.book-cover{width:122px;height:188px;flex-shrink:0;background:#d9e2d1;color:#354932;padding:15px 13px;display:flex;flex-direction:column;position:relative;overflow:hidden}.book-cover>span{font-size:8px;letter-spacing:2px}.book-cover strong{font-size:27px;line-height:1.5;font-weight:500;letter-spacing:3px;margin-top:11px}.book-cover small{font-size:8px;letter-spacing:1px;margin-top:auto;z-index:1}.book-cover i{position:absolute;width:120px;height:120px;border:1px solid #6f886750;border-radius:50%;top:87px;left:57px}.book-info{min-width:0;flex:1}.category{font-size:10px;color:#778273;margin-bottom:5px}h1{font-size:calc(var(--font-size) + 7px);line-height:1.5;font-weight:600;letter-spacing:.03em}.author{font-size:12px;color:#7b8179;margin-top:4px}.description{font-size:11px;line-height:1.85;color:#747c73;margin-top:13px}.reading-progress{margin-top:21px}.progress-label{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:10px;color:#7b8278}.progress-label strong{font-size:13px;font-weight:500;color:var(--text)}.progress-label strong span{font-size:10px;color:#858a82}.progress-track{height:4px;background:#edf0e9;border-radius:4px;margin-top:8px;overflow:hidden}.progress-track>span{display:block;width:30%;height:100%;background:var(--accent)}button{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:var(--accent);color:#fff;border-radius:5px;padding:10px 12px;margin-top:18px;font-size:11px}html[data-description=\"false\"] .description{display:none}@media(max-width:380px){.sample-stage{width:calc(100% - 28px)}.book-card{gap:16px;padding:18px}.book-cover{width:90px;height:165px}h1{font-size:19px}.description br{display:none}}.book-card{display:grid;grid-template-columns:82px 1fr;align-items:start;gap:0 19px}.book-cover{width:82px;height:116px;padding:10px}.book-cover>span{font-size:6px;letter-spacing:1px}.book-cover strong{font-size:20px;line-height:1.35;letter-spacing:2px;margin-top:8px}.book-cover small{font-size:6px}.book-cover i{width:75px;height:75px;left:42px;top:50px}.book-info{display:contents}.category,h1,.author,.description{grid-column:2}.category{grid-row:1;margin:0 0 3px}.book-cover{grid-row:1 / 5}h1{grid-row:2}.author{grid-row:3}.description{grid-row:4;margin-top:7px}.description br{display:none}.reading-progress{grid-column:1 / 3;margin-top:23px}button{grid-column:1 / 3;margin-top:16px}.progress-track{height:5px}",
+      "tokens": {
+        "accent": "#486257",
+        "background": "#f3f4f0",
+        "text": "#2b342e",
+        "spacing": 24,
+        "fontSize": 15,
+        "radius": 10
+      },
+      "baselineTokens": {
+        "accent": "#486257",
+        "background": "#f3f4f0",
+        "text": "#2b342e",
+        "spacing": 24,
+        "fontSize": 15,
+        "radius": 10
+      },
+      "tweaks": [
+        {
+          "id": "description",
+          "label": "本の紹介文",
+          "type": "toggle",
+          "attribute": "data-description",
+          "default": true
+        }
+      ],
+      "tweakValues": {
+        "description": true
+      },
+      "baselineTweakValues": {
+        "description": true
+      },
+      "notes": "",
+      "designer": {
+        "model": "gpt-6-astra",
+        "role": "design-author"
+      }
+    }
+  ]
+}
