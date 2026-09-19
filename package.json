@@ -11,17 +11,22 @@
     "db:migrate": "wrangler d1 migrations apply codex-design-library --local",
     "types": "wrangler types",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/library.test.mjs tests/kits.test.mjs && python3 tests/test_library_cli.py"
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "test:i18n": "node --test tests/i18n.test.mjs",
+    "test": "npm run check:i18n && node --test tests/i18n.test.mjs tests/library.test.mjs tests/kits.test.mjs && python3 tests/test_library_cli.py"
   },
   "engines": {
     "node": ">=22"
   },
-  "overrides": { "sharp": "0.35.4" },
+  "overrides": {
+    "sharp": "0.35.4"
+  },
   "dependencies": {
     "hono": "^4.13.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260910.1",
+    "acorn": "8.15.0",
     "esbuild": "^0.28.2",
     "miniflare": "^5.20260908.0-alpha",
     "typescript": "^7.0.2",

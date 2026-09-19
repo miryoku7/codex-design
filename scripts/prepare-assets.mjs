@@ -17,7 +17,7 @@ for (const entry of await readdir(workbench, { withFileTypes: true })) {
   const target = join(output, 'workbench', entry.name);
   if (entry.name === 'index.html') {
     const html = await readFile(join(workbench, entry.name), 'utf8');
-    await writeFile(target, html.replace(/((?:src|href)=["'])(?:\.\/)?(styles\.css|preview\.js|app\.js)(["'])/g, '$1/workbench/$2$3'));
+    await writeFile(target, html.replace(/((?:src|href)=["'])(?:\.\/)?(styles\.css|i18n\.js|preview\.js|app\.js)(["'])/g, '$1/workbench/$2$3'));
   } else {
     await cp(join(workbench, entry.name), target);
   }

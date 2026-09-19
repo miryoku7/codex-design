@@ -1,3 +1,4 @@
+import { kitMessages, type Locale } from './i18n';
 import { ID_PATTERN, InvalidInput, MAX_BODY_BYTES, object, requiredString, validateSession, type Session, type Variant } from './session';
 
 export interface KitToken {
@@ -88,8 +89,8 @@ export function validateKitContent(value: unknown): KitContent {
   return content;
 }
 
-export function tokensFromVariant(variant: Variant): KitToken[] {
-  const descriptions: Record<string, string> = { accent: '操作と強調に使う色', background: '画面の背景色', text: '本文の文字色', spacing: '基本の余白', fontSize: '本文の文字サイズ', radius: '基本の角丸' };
+export function tokensFromVariant(variant: Variant, language: Locale = 'ja'): KitToken[] {
+  const descriptions: Record<string, string> = kitMessages[language];
   const tokens: KitToken[] = ['accent', 'background', 'text', 'spacing', 'fontSize', 'radius'].map((name) => ({
     name: name === 'fontSize' ? 'font-size' : name,
     type: ['accent', 'background', 'text'].includes(name) ? 'color' : 'dimension',
@@ -117,11 +118,11 @@ export function tokensFromVariant(variant: Variant): KitToken[] {
   }
   return tokens;
 }
-export function preparedContent(name: unknown, examples: KitExample[]): KitContent {
+export function preparedContent(name: unknown, examples: KitExample[], language: Locale = 'ja'): KitContent {
   return validateKitContent({
-    formatVersion: 1, name: name ?? '新しいデザインキット', description: '',
-    tokens: tokensFromVariant(examples[0].variant), examples,
-    rules: '## 基準\n\n最初に選んだ実例の調整後の値と、型を確認できる CSS 変数をトークンの初期値にしています。\n\n## 使い方\n\n実例の構成・余白・文字組みを参照し、このキットの役割と使い分けを編集してください。レイアウトの共通ルールや構成の抽出は、実例を確認して Astra または利用者が記述します。\n\n属性や型を特定できない調整は実例に保持しています。トークンを使わず固定値で書かれた箇所には自動反映されません。',
+    formatVersion: 1, name: name ?? kitMessages[language].newKit, description: '',
+    tokens: tokensFromVariant(examples[0].variant, language), examples,
+    rules: kitMessages[language].rules,
   });
 }
 export function tokenStyles(tokens: KitToken[]): string {
@@ -132,22 +133,23 @@ const jsonScript = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\
 const jsonFile = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 
 /** One portable bundle contract is used by the browser and CLI. Author HTML never becomes an outer document. */
-export async function exportKit(version: KitVersion, runtime: string, legacyCss: string) {
+export async function exportKit(version: KitVersion, runtime: string, legacyCss: string, language: Locale = 'ja') {
+  const messages = kitMessages[language];
   const { content } = version;
   const files: { path: string; content: string }[] = [
     { path: 'kit.json', content: jsonFile({ format: 'codex-design-kit', ...version }) },
     { path: 'tokens.css', content: tokenStyles(content.tokens) },
   ];
   const tokenGuide = content.tokens.map((token) => `- \`--${token.name}\` (${token.type}): \`${token.value}\` — ${token.description}`).join('\n');
-  const exampleGuide = content.examples.map((example) => `- ${example.name} (${example.kind}): [安全なプレビュー](examples/${example.id}/preview.html) · [保存したソース](examples/${example.id}/variant.json)\n  出典: design ${example.source.designId}, variant ${example.source.variantId}, revision ${example.source.revision}`).join('\n');
-  files.push({ path: 'GUIDE.md', content: `# ${content.name}\n\nVersion ${version.version} · Kit ${version.kitId}\n\n${content.description}\n\n${content.rules}\n\n## トークン\n\n${tokenGuide}\n\n## 実例\n\n${exampleGuide}\n\npreview.html はそのままブラウザで開けます。保存時の調整値へキットのトークンを重ね、sandbox 内で表示します。任意スクリプト・外部通信は無効です。variant.json は調整後の値とリセット値を含む元の静的ソースです。\n\nkit.json は kits create の入力として読み込めます。別のキットの version 1 として登録され、既存キット・作品・プロジェクトは更新しません。トークンの利用箇所への移植は利用先で行います。\n` });
+  const exampleGuide = content.examples.map((example) => `- ${example.name} (${example.kind}): [${messages.preview}](examples/${example.id}/preview.html) · [${messages.source}](examples/${example.id}/variant.json)\n  ${messages.provenance}: design ${example.source.designId}, variant ${example.source.variantId}, revision ${example.source.revision}`).join('\n');
+  files.push({ path: 'GUIDE.md', content: `# ${content.name}\n\nVersion ${version.version} · Kit ${version.kitId}\n\n${content.description}\n\n${content.rules}\n\n## ${messages.tokens}\n\n${tokenGuide}\n\n## ${messages.examples}\n\n${exampleGuide}\n\n${messages.guide}\n` });
   for (const example of content.examples) {
     const script = `${runtime.replace(/<\/script/gi, '<\\/script')}\n(() => { const example = ${jsonScript(example)}; const tokens = ${jsonScript(content.tokens)}; const frame = document.querySelector('iframe'); frame.width = example.viewport.width; frame.height = example.viewport.height; frame.srcdoc = window.DesignPreview.frameDocument(example.variant, ${jsonScript(legacyCss)}, tokens); })();`;
     const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(script)));
     const hash = btoa(String.fromCharCode(...digest));
     const csp = `default-src 'none'; script-src 'sha256-${hash}'; style-src 'unsafe-inline'; frame-src 'self'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'`;
     files.push({ path: `examples/${example.id}/variant.json`, content: jsonFile(example) });
-    files.push({ path: `examples/${example.id}/preview.html`, content: `<!doctype html>\n<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${csp}"><title>${escapeHtml(example.name)} — ${escapeHtml(content.name)} v${version.version}</title><style>html{color:#252833;background:#e9e9e9;font-family:system-ui}body{margin:24px}h1{font-size:18px;font-weight:500}p{font-size:13px}iframe{display:block;border:0;background:white;max-width:100%}</style></head><body><h1>${escapeHtml(example.name)}</h1><p>${escapeHtml(content.name)} · v${version.version} · ${example.viewport.width} × ${example.viewport.height}</p><iframe sandbox="" title="${escapeHtml(example.name)}"></iframe><script>${script}</script></body></html>\n` });
+    files.push({ path: `examples/${example.id}/preview.html`, content: `<!doctype html>\n<html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="${csp}"><title>${escapeHtml(example.name)} — ${escapeHtml(content.name)} v${version.version}</title><style>html{color:#252833;background:#e9e9e9;font-family:system-ui}body{margin:24px}h1{font-size:18px;font-weight:500}p{font-size:13px}iframe{display:block;border:0;background:white;max-width:100%}</style></head><body><h1>${escapeHtml(example.name)}</h1><p>${escapeHtml(content.name)} · v${version.version} · ${example.viewport.width} × ${example.viewport.height}</p><iframe sandbox="" title="${escapeHtml(example.name)}"></iframe><script>${script}</script></body></html>\n` });
   }
   return { filename: `design-kit-${version.kitId}-v${version.version}.json`, files };
 }

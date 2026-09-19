@@ -240,3 +240,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   .project-kit-context { margin-top: 0; margin-bottom: 24px; padding: 15px 16px; }
   .project-kit-copy { flex-direction: column; align-items: flex-start; gap: 5px; }
 }
+
+/* Language is a compact, persistent control; long English actions may wrap. */
+.locale-switch { display: inline-flex; flex-shrink: 0; align-items: center; }
+.locale-switch select { min-height: 34px; max-width: 108px; padding: 5px 7px; border: 1px solid var(--line); background: var(--paper, #fff); color: inherit; font: inherit; font-size: 12px; border-radius: 4px; }
+.site-nav { margin-left: auto; }
+.heading-actions, .version-actions, .dialog-footer, .notice-actions { flex-wrap: wrap; }
+@media (max-width: 600px) {
+  .site-header { column-gap: 12px; }
+  .site-header .locale-switch { margin-left: auto; }
+  .site-nav { order: 3; width: 100%; margin-left: 0; }
+  .filter-controls { flex-wrap: wrap; }
+  .filter-tabs { flex-wrap: wrap; }
+  .solid-button, .quiet-button { white-space: normal; }
+}

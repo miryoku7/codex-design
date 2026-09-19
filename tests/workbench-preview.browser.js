@@ -1,6 +1,8 @@
 /* Browser-only regression, served by workbench-preview.browser.mjs. */
 (() => {
   'use strict';
+  // These existing text assertions intentionally exercise the Japanese locale.
+  localStorage.setItem('codex-design.locale', 'ja');
   const clone = value => structuredClone(value);
   const tokens = { accent: '#4051ac', background: '#f2eee5', text: '#252833', spacing: 24, fontSize: 16, radius: 8 };
   const variant = id => ({

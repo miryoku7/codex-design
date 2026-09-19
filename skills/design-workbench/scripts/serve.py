@@ -508,6 +508,7 @@ def make_handler(store: SessionStore, assets: Path = ASSET_DIR):
         "/index.html": (assets / "index.html", "text/html; charset=utf-8"),
         "/styles.css": (assets / "styles.css", "text/css; charset=utf-8"),
         "/app.js": (assets / "app.js", "text/javascript; charset=utf-8"),
+        "/i18n.js": (assets / "i18n.js", "text/javascript; charset=utf-8"),
         "/preview.js": (assets / "preview.js", "text/javascript; charset=utf-8"),
         "/legacy-v1.css": (assets / "legacy-v1.css", "text/css; charset=utf-8"),
     }

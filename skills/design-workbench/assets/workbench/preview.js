@@ -1,13 +1,16 @@
 (() => {
   'use strict';
+  const I = window.DesignI18n;
 
+  // Portable kit previews only use frameDocument; they do not load UI chrome.
+  // Empty labels keep that renderer independent of the optional locale runtime.
   const TOKEN_DEFS = [
-    {id:'accent',label:'アクセント',type:'color',default:'#4051ac'},
-    {id:'background',label:'背景',type:'color',default:'#ffffff'},
-    {id:'text',label:'文字',type:'color',default:'#252833'},
-    {id:'spacing',label:'余白',type:'range',default:24,min:0,max:128,step:1,unit:'px'},
-    {id:'fontSize',label:'文字サイズ',type:'range',default:16,min:10,max:48,step:1,unit:'px'},
-    {id:'radius',label:'角丸',type:'range',default:8,min:0,max:32,step:1,unit:'px'}
+    {id:'accent',label:I?.msg("accent") || '',type:'color',default:'#4051ac'},
+    {id:'background',label:I?.msg("background") || '',type:'color',default:'#ffffff'},
+    {id:'text',label:I?.msg("text") || '',type:'color',default:'#252833'},
+    {id:'spacing',label:I?.msg("spacing") || '',type:'range',default:24,min:0,max:128,step:1,unit:'px'},
+    {id:'fontSize',label:I?.msg("text.size") || '',type:'range',default:16,min:10,max:48,step:1,unit:'px'},
+    {id:'radius',label:I?.msg("corner.radius") || '',type:'range',default:8,min:0,max:32,step:1,unit:'px'}
   ];
   const FRAME_RESET = '*{box-sizing:border-box}html,body{min-height:100%;margin:0}body{color:var(--text);background:var(--background);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;font-size:var(--font-size)}button,input,select,textarea{font:inherit}button,a{touch-action:manipulation}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}';
 
@@ -118,45 +121,46 @@
     doc.open();
     doc.write('<!doctype html><html lang="ja"><head><meta charset="utf-8"><title></title></head><body></body></html>');
     doc.close();
+    doc.documentElement.lang = I.getLocale();
     popup.opener = null;
-    doc.title = `${snapshot.title} · ${snapshot.variants.map(v => v.id).join('・')} · PDF`;
+    I.attr(doc, 'title', `${snapshot.title} · ${snapshot.variants.map(v => v.id).join('・')} · PDF`);
     const add = (tag, text, parent = doc.body) => {
       const element = doc.createElement(tag);
-      if (text !== undefined) element.textContent = text;
+      if (text !== undefined) I.text(element, text);
       parent.append(element);
       return element;
     };
     const width = Math.max(240, Math.min(2560, Number(snapshot.viewport.width) || 390));
     const height = Math.max(320, Math.min(2160, Number(snapshot.viewport.height) || 760));
     const style = add('style', undefined, doc.head);
-    style.textContent = `
+    I.text(style, `
       *{box-sizing:border-box}body{margin:0;background:#eee;color:#252833;font:14px -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}
       .toolbar{padding:24px;max-width:900px;margin:auto}.toolbar h1{font-size:20px}.toolbar p{line-height:1.7}
       button{font:inherit;padding:10px 18px;margin-right:10px;border:1px solid #bbb;border-radius:6px;background:white;color:inherit;cursor:pointer}button:disabled{cursor:wait;opacity:.5}
       article{width:${width}px;margin:24px auto;background:white}h2{font-size:18px;margin:0;padding:16px 0;overflow-wrap:anywhere}
       iframe{display:block;width:${width}px;border:0;pointer-events:none}article{break-after:page}article:last-child{break-after:auto}
       @media print{html,body{margin:0;padding:0;width:${width}px;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact}.toolbar{display:none}article{margin:0}h2{break-after:avoid}}
-    `;
+    `);
     const toolbar = add('header'); toolbar.className = 'toolbar';
     add('h1', snapshot.title, toolbar);
-    add('p', '送信先で「PDFに保存」を選んでください。各案を1ページに収めるサイズを設定しています。背景のグラフィックを有効、ヘッダーとフッターを無効にし、倍率100%で保存してください。', toolbar);
-    add('p', '長い画面は縦長のPDFになります。固定配置・画面の高さに依存するレイアウト・内部スクロール・印刷専用CSSは、元の画面と異なる場合があります。保存前に印刷プレビューを確認してください。', toolbar);
-    const status = add('p', '画像と書体を準備しています…', toolbar); status.setAttribute('role', 'status');
-    const print = add('button', 'PDFに保存 / 印刷', toolbar); print.disabled = true;
-    const close = add('button', '閉じる', toolbar);
+    add('p', I.msg("choose.save.as.pdf.as.the.destination"), toolbar);
+    add('p', I.msg("long.screens.create.tall.pdf.pages.fixed"), toolbar);
+    const status = add('p', I.msg("preparing.images.and.fonts"), toolbar); status.setAttribute('role', 'status');
+    const print = add('button', I.msg("save.as.pdf.print"), toolbar); print.disabled = true;
+    const close = add('button', I.msg("close"), toolbar);
     close.addEventListener('click', () => popup.close());
     print.addEventListener('click', () => { popup.focus(); popup.print(); });
     // Cancel leaves this isolated snapshot open for another print attempt.
-    popup.addEventListener('afterprint', () => { status.textContent = '印刷画面を閉じました。再度印刷するか、この画面を閉じてください。'; });
+    popup.addEventListener('afterprint', () => { I.text(status, I.msg("print.dialog.closed.print.again.or.close")); });
     const bounded = promise => new Promise((resolve, reject) => {
-      const timer = window.setTimeout(() => reject(new Error('画像または書体の読み込みが完了しませんでした。')), 15000);
+      const timer = window.setTimeout(() => reject(I.error(I.msg("images.or.fonts.did.not.finish.loading"))), 15000);
       Promise.resolve(promise).then(value => { clearTimeout(timer); resolve(value); }, error => { clearTimeout(timer); reject(error); });
     });
     const ready = snapshot.variants.map(variant => new Promise((resolve, reject) => {
       const section = add('article'); section.dataset.variant = variant.id;
       add('h2', `${variant.id} · ${variant.name}`, section);
       const frame = doc.createElement('iframe');
-      frame.title = `${variant.id} ${variant.name} 印刷用`;
+      I.attr(frame, 'title', I.msg("print.view", {p0: variant.id, p1: variant.name}));
       // Read access is needed only on these disposable print frames. Scripts
       // remain forbidden by BOTH sandbox and the original deny-network CSP.
       // Never add allow-scripts: same-origin plus scripts would defeat isolation.
@@ -166,9 +170,9 @@
       frame.addEventListener('load', async () => {
         try {
           const inner = frame.contentDocument;
-          if (!inner) throw new Error('印刷用の画面を読み込めませんでした。');
+          if (!inner) throw I.error(I.msg("could.not.load.the.print.view"));
           const printStyle = inner.createElement('style');
-          printStyle.textContent = `html,body{height:auto!important;max-height:none!important;overflow:visible!important;min-height:${height}px!important}*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}`;
+          I.text(printStyle, `html,body{height:auto!important;max-height:none!important;overflow:visible!important;min-height:${height}px!important}*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}`);
           inner.head.append(printStyle);
           // Prevent print preparation from waiting for below-fold lazy images.
           const images = [...inner.images];
@@ -189,12 +193,12 @@
       // the authored width unscaled and fit each complete frame on one page.
       const pageHeight = Math.ceil(Math.max(...Array.from(doc.querySelectorAll('article'), article => article.getBoundingClientRect().height))) + 2;
       const pageStyle = add('style', undefined, doc.head);
-      pageStyle.textContent = `@page{size:${width + 48}px ${pageHeight + 48}px;margin:24px}`;
-      status.textContent = `${snapshot.variants.length}案を準備しました。ボタンから印刷画面を開いてください。`;
+      I.text(pageStyle, `@page{size:${width + 48}px ${pageHeight + 48}px;margin:24px}`);
+      I.text(status, I.msg("directions.ready.use.the.button.to.open", {p0: snapshot.variants.length}));
       print.disabled = false;
       doc.body.dataset.printReady = 'true';
     }).catch(error => {
-      if (!popup.closed) status.textContent = `${error.message} この画面を閉じて、もう一度書き出してください。`;
+      if (!popup.closed) I.text(status, I.msg("close.this.view.and.export.again", {p0: I.errorMessage(error)}));
     });
     return true;
   }

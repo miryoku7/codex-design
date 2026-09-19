@@ -16,13 +16,13 @@ const server = createServer(async (request, response) => {
     let body, type;
     if (path === '/designs/preview-regression') {
       body = (await readFile(new URL('index.html', assets), 'utf8'))
-        .replace(/((?:src|href)=["'])(styles\.css|preview\.js|app\.js)(["'])/g, '$1/workbench/$2$3')
+        .replace(/((?:src|href)=["'])(styles\.css|i18n\.js|preview\.js|app\.js)(["'])/g, '$1/workbench/$2$3')
         .replace('<head>', '<head><script src="/regression.js"></script>');
       type = 'text/html';
     } else if (path === '/regression.js') {
       body = await readFile(new URL('workbench-preview.browser.js', import.meta.url));
       type = 'text/javascript';
-    } else if (/^\/workbench\/(app\.js|preview\.js|styles\.css|legacy-v1\.css)$/.test(path)) {
+    } else if (/^\/workbench\/(app\.js|i18n\.js|preview\.js|styles\.css|legacy-v1\.css)$/.test(path)) {
       body = await readFile(new URL(path.split('/').pop(), assets));
       type = path.endsWith('.css') ? 'text/css' : 'text/javascript';
     } else {

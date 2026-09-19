@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const I = window.DesignI18n;
 
   const elements = {};
   ['mainContent','libraryTitle','projectSummary','breadcrumb','breadcrumbCurrent',
@@ -25,12 +26,12 @@
   const previewObserver = new ResizeObserver(entries => entries.forEach(entry => fitPreview(entry.target)));
 
   class ApiError extends Error {
-    constructor(message, status, payload = {}) { super(message); this.status = status; this.payload = payload; }
+    constructor(message, status, payload = {}) { super(String(message)); this.localized = message; this.status = status; this.payload = payload; }
   }
   function node(tag, className, text) {
     const element = document.createElement(tag);
     if (className) element.className = className;
-    if (text !== undefined) element.textContent = text;
+    if (text !== undefined) I.text(element, text);
     return element;
   }
   function icon(kind) {
@@ -62,20 +63,20 @@
         ...(body === undefined ? {} : {headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
       });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new ApiError(payload.message || `操作に失敗しました（${response.status}）`, response.status, payload);
+      if (!response.ok) throw new ApiError(I.msg("action.failed", {p0: response.status}), response.status, payload);
       return payload;
     } finally { window.clearTimeout(timeout); }
   }
   function notify(message, tone = 'error', retry = true) {
-    elements.noticeMessage.textContent = message;
+    I.text(elements.noticeMessage, message);
     elements.libraryNotice.dataset.tone = tone;
     elements.retryLoad.hidden = !retry;
     elements.libraryNotice.hidden = false;
   }
   function clearNotice() { elements.libraryNotice.hidden = true; }
-  function announce(message) { elements.actionStatus.textContent = message; }
-  function kindName(kind) { return kind === 'component' ? 'コンポーネント' : '画面'; }
-  function projectName(id) { return id ? app.projects.find(item => item.id === id)?.name || 'プロジェクト' : '未分類'; }
+  function announce(message) { I.text(elements.actionStatus, message); }
+  function kindName(kind) { return kind === 'component' ? I.msg("component") : I.msg("screen"); }
+  function projectName(id) { return id ? app.projects.find(item => item.id === id)?.name || I.msg("projects") : I.msg("unassigned"); }
   function projectPath(id) { return id ? `/projects/${encodeURIComponent(id)}` : '/unassigned'; }
   function currentProject() { return app.projects.find(item => item.id === projectId); }
   function scopedDesigns() { return app.designs.filter(design => (design.projectId || null) === projectId); }
@@ -87,10 +88,10 @@
     window.history.replaceState(null, '', url.pathname + url.search);
   }
   function filteredDesigns() {
-    const search = app.search.trim().normalize('NFKC').toLocaleLowerCase('ja');
+    const search = app.search.trim().normalize('NFKC').toLocaleLowerCase(I.getLocale());
     return scopedDesigns().filter(design => (!app.favoritesOnly || design.favorite) &&
       (app.kind === 'all' || design.kind === app.kind) &&
-      (!search || design.title.normalize('NFKC').toLocaleLowerCase('ja').includes(search)));
+      (!search || design.title.normalize('NFKC').toLocaleLowerCase(I.getLocale()).includes(search)));
   }
   function designUrl(design) {
     const owner = Object.hasOwn(design, 'projectId') ? design.projectId : projectId;
@@ -134,7 +135,7 @@
       canvas.dataset.width = String(Math.min(2560, Math.max(240, Number(design.preview.viewport?.width) || 390)));
       canvas.dataset.height = String(Math.min(2160, Math.max(320, Number(design.preview.viewport?.height) || 760)));
       const frame = node('iframe', 'thumbnail-frame');
-      frame.title = `${design.title}：${variant.name}のプレビュー`;
+      I.attr(frame, 'title', I.msg("preview.of", {p0: design.title, p1: variant.name}));
       frame.tabIndex = -1;
       frame.setAttribute('aria-hidden', 'true');
       frame.setAttribute('sandbox', '');
@@ -142,13 +143,13 @@
       frame.setAttribute('loading', 'lazy');
       frame.srcdoc = window.DesignPreview.frameDocument(variant, app.legacyCss);
       canvas.append(frame); link.append(canvas);
-    } else { link.append(node('span', 'preview-unavailable', 'プレビューは作品を開いて確認できます')); }
+    } else { link.append(node('span', 'preview-unavailable', I.msg("open.the.design.to.see.its.preview"))); }
     const favorite = node('button', 'favorite-button');
     favorite.type = 'button';
     favorite.dataset.focus = `favorite-${design.id}`;
     favorite.setAttribute('aria-pressed', String(design.favorite));
-    favorite.setAttribute('aria-label', `${design.title}をお気に入り${design.favorite ? 'から外す' : 'に追加'}`);
-    favorite.title = design.favorite ? 'お気に入りから外す' : 'お気に入りに追加';
+    I.attr(favorite, 'aria-label', I.msg("favorites", {p0: design.title, p1: design.favorite ? I.msg("remove.from") : I.msg("add.to")}));
+    I.attr(favorite, 'title', design.favorite ? I.msg("remove.from.favorites") : I.msg("add.to.favorites"));
     favorite.append(icon('star'));
     favorite.addEventListener('click', () => toggleFavorite(design.id));
     surface.append(link, favorite);
@@ -158,34 +159,34 @@
     const card = node('article', 'design-card');
     card.dataset.id = design.id; card.dataset.kind = design.kind;
     const info = node('div', 'design-info'), classification = node('div', 'design-classification');
-    const edit = node('button', 'metadata-button', '所属・種類を変更');
+    const edit = node('button', 'metadata-button', I.msg("change.project.type"));
     edit.type = 'button'; edit.dataset.focus = `metadata-${design.id}`;
-    edit.setAttribute('aria-label', `${design.title}の所属と種類を変更`);
+    I.attr(edit, 'aria-label', I.msg("change.project.and.type.for", {p0: design.title}));
     edit.addEventListener('click', () => showMetadata(design.id));
     classification.append(node('span','design-kind',kindName(design.kind)), edit);
     const heading = node('h2', 'design-title', design.title), meta = node('p', 'design-meta');
-    meta.append(node('span', '', `${design.variantCount}案`));
+    meta.append(node('span', '', I.msg("directions", {p0: design.variantCount})));
     const variant = design.preview?.variant;
     if (variant) {
       const adopted = design.selectedId === variant.id;
-      const label = node('span', 'preview-label', `${adopted ? '採用' : '表示'}：${variant.id} ${variant.name}`);
-      label.dataset.adopted = String(adopted); label.title = label.textContent; meta.append(label);
+      const label = node('span', 'preview-label', I.msg("direction.preview.caption", {p0: adopted ? I.msg("adopted") : I.msg("viewing"), p1: variant.id, p2: variant.name}));
+      label.dataset.adopted = String(adopted); I.attr(label, 'title', I.msg("direction.preview.caption", {p0: adopted ? I.msg("adopted") : I.msg("viewing"), p1: variant.id, p2: variant.name})); meta.append(label);
     }
     info.append(classification, heading, meta);
     const bottom = node('div', 'design-bottom'), date = new Date(design.updatedAt);
     if (Number.isFinite(date.getTime())) {
-      const time = node('time', 'updated-at', `${new Intl.DateTimeFormat('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(date)} 更新`);
+      const time = node('time', 'updated-at', I.msg("updated", {p0: I.dateText(date, {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}));
       time.dateTime = date.toISOString();
-      time.title = new Intl.DateTimeFormat('ja-JP', {dateStyle:'full',timeStyle:'short'}).format(date);
+      I.attr(time, 'title', () => I.date(date, {dateStyle:'full',timeStyle:'short'}));
       bottom.append(time);
     }
-    const actions = node('div', 'design-actions'), open = node('a', 'open-design', '開く');
+    const actions = node('div', 'design-actions'), open = node('a', 'open-design', I.msg("open"));
     open.href = designUrl(design); open.dataset.focus = `open-${design.id}`;
-    open.setAttribute('aria-label', `${design.title}を開く`); open.append(icon('arrow'));
+    I.attr(open, 'aria-label', I.msg("open.2", {p0: design.title})); open.append(icon('arrow'));
     open.addEventListener('click', event => { if (app.pending) event.preventDefault(); });
-    const duplicate = node('button', 'duplicate-button', '複製して開く');
+    const duplicate = node('button', 'duplicate-button', I.msg("duplicate.and.open"));
     duplicate.type = 'button'; duplicate.dataset.focus = `duplicate-${design.id}`;
-    duplicate.setAttribute('aria-label', `${design.title}を複製して開く`);
+    I.attr(duplicate, 'aria-label', I.msg("duplicate.and.open.2", {p0: design.title}));
     duplicate.addEventListener('click', () => duplicateDesign(design.id));
     actions.append(open, duplicate); bottom.append(actions);
     card.append(makePreview(design), info, bottom);
@@ -197,10 +198,10 @@
     link.href = projectPath(project.id); link.dataset.focus = `project-${project.id || 'unassigned'}`;
     const symbol = node('span', 'project-symbol'); symbol.append(icon('folder'));
     const name = node('span', 'project-name', project.name);
-    if (unassigned) name.append(node('small', '', 'プロジェクトに振り分けていない作品'));
-    else if (!project.designCount) name.append(node('small', '', 'まだ作品がありません'));
+    if (unassigned) name.append(node('small', '', I.msg("designs.without.a.project")));
+    else if (!project.designCount) name.append(node('small', '', I.msg("no.designs.yet")));
     const counts = node('span', 'project-counts');
-    for (const [label, count] of [['画面',project.screenCount],['コンポーネント',project.componentCount]]) {
+    for (const [label, count] of [[I.msg("screen"),project.screenCount],[I.msg("component"),project.componentCount]]) {
       const item = node('span', 'project-count'); item.append(node('span','',label),node('strong','',String(count || 0))); counts.append(item);
     }
     const arrow = icon('arrow'); arrow.classList.add('project-arrow');
@@ -208,7 +209,7 @@
     if (!unassigned) {
       const rename = node('button', 'icon-button rename-button'); rename.type = 'button';
       rename.dataset.focus = `rename-${project.id}`;
-      rename.setAttribute('aria-label', `${project.name}の名前を変更`); rename.title = '名前を変更';
+      I.attr(rename, 'aria-label', I.msg("rename", {p0: project.name})); I.attr(rename, 'title', I.msg("rename.2"));
       const mark = icon('rename'); mark.setAttribute('width','17'); mark.setAttribute('height','17'); rename.append(mark);
       rename.addEventListener('click', () => showProjectDialog(project.id)); row.append(rename);
     }
@@ -225,26 +226,26 @@
       card.dataset.pending = String(pendingHere);
       card.querySelectorAll('button').forEach(button => button.disabled = busy);
       card.querySelector('.open-design').setAttribute('aria-disabled', String(Boolean(app.pending)));
-      card.querySelector('.duplicate-button').textContent = pendingHere && app.pending.action === 'duplicate' ? '複製中…' : '複製して開く';
+      I.text(card.querySelector('.duplicate-button'), pendingHere && app.pending.action === 'duplicate' ? I.msg("duplicating") : I.msg("duplicate.and.open"));
     });
   }
   function render(fallbackFocus = null) {
     const focus = document.activeElement?.dataset.focus || (document.activeElement === document.body ? fallbackFocus : null);
-    const project = currentProject(), name = overview ? 'プロジェクト' : projectName(projectId);
-    elements.libraryTitle.textContent = projectId && app.loaded && !project ? 'プロジェクトが見つかりません' : name;
-    document.title = `${name} | デザインライブラリ`;
-    elements.breadcrumb.hidden = overview; elements.breadcrumbCurrent.textContent = name;
+    const project = currentProject(), name = overview ? I.msg("projects") : projectName(projectId);
+    I.text(elements.libraryTitle, projectId && app.loaded && !project ? I.msg("project.not.found") : name);
+    I.attr(document, 'title', I.msg("design.library", {p0: name}));
+    elements.breadcrumb.hidden = overview; I.text(elements.breadcrumbCurrent, name);
     elements.projectOverview.hidden = !overview; elements.projectGallery.hidden = overview || (app.loaded && Boolean(projectId) && !project);
     elements.createProject.hidden = !overview; elements.renameProject.hidden = overview || !project;
     elements.projectSummary.hidden = overview || !app.loaded || Boolean(projectId && !project);
     if (!overview) {
       const works = scopedDesigns();
-      elements.projectSummary.textContent = `画面 ${works.filter(d => d.kind === 'screen').length}　コンポーネント ${works.filter(d => d.kind === 'component').length}`;
+      I.text(elements.projectSummary, I.msg("screens.components", {p0: works.filter(d => d.kind === 'screen').length, p1: works.filter(d => d.kind === 'component').length}));
     }
     previewObserver.disconnect();
     if (overview) {
       const works = app.designs.filter(design => !design.projectId);
-      const unassigned = {id:null,name:'未分類',designCount:works.length,screenCount:works.filter(d => d.kind === 'screen').length,componentCount:works.filter(d => d.kind === 'component').length};
+      const unassigned = {id:null,name:I.msg("unassigned"),designCount:works.length,screenCount:works.filter(d => d.kind === 'screen').length,componentCount:works.filter(d => d.kind === 'component').length};
       elements.projectList.replaceChildren(...(app.loaded ? [...app.projects,unassigned].map(makeProjectRow) : []));
       elements.noProjects.hidden = !app.loaded || app.projects.length > 0;
       elements.projectOverview.setAttribute('aria-busy', String(app.loading));
@@ -255,15 +256,15 @@
       elements.designGrid.replaceChildren(...designs.map(makeCard));
       elements.designGrid.querySelectorAll('.preview-link').forEach(link => previewObserver.observe(link));
       elements.designGrid.setAttribute('aria-busy', String(app.loading));
-      elements.resultContext.textContent = app.loaded && designs.length ? `${designs.length}件の作品　更新が新しい順` : '';
+      I.text(elements.resultContext, app.loaded && designs.length ? I.msg("designs.most.recently.updated", {p0: designs.length}) : '');
       elements.emptyState.hidden = !app.loaded || designs.length > 0;
       if (app.loaded && !designs.length) {
         const emptyProject = !scopedDesigns().length;
-        elements.emptyTitle.textContent = emptyProject ? '作品はまだありません' : '条件に合う作品がありません';
-        elements.emptyDescription.textContent = emptyProject
-          ? `Codexに画面やコンポーネントの制作を依頼し、「${name}」に保存してください。`
-          : '作品名や種類、お気に入りの絞り込みを変えて探してください。';
-        elements.emptyAction.textContent = emptyProject ? '作品の追加方法' : '検索と絞り込みを解除';
+        I.text(elements.emptyTitle, emptyProject ? I.msg("no.designs.yet.2") : I.msg("no.matching.designs"));
+        I.text(elements.emptyDescription, emptyProject
+          ? I.msg("ask.codex.to.create.a.screen.or", {p0: name})
+          : I.msg("try.changing.the.name.type.or.favorites"));
+        I.text(elements.emptyAction, emptyProject ? I.msg("how.to.add.designs") : I.msg("clear.search.and.filters"));
       }
     }
     renderPending();
@@ -281,20 +282,20 @@
     let succeeded = false;
     try {
       const [projects, designs] = await Promise.all([request('/api/projects'),request('/api/designs')]);
-      if (!Array.isArray(projects.projects) || !Array.isArray(designs.designs)) throw new Error('一覧の形式を読み取れませんでした');
+      if (!Array.isArray(projects.projects) || !Array.isArray(designs.designs)) throw I.error(I.msg("could.not.read.the.list"));
       app.projects = projects.projects;
       app.designs = designs.designs.map(design => ({...design,projectId:design.projectId || null,kind:design.kind === 'component' ? 'component' : 'screen'}));
       document.dispatchEvent(new CustomEvent('design-library:loaded', {detail:{projects:app.projects}}));
       app.loaded = true; succeeded = true;
-      if (!overview && projectId && !currentProject()) notify('このプロジェクトは見つかりませんでした。プロジェクト一覧から開き直してください。','info',false);
+      if (!overview && projectId && !currentProject()) notify(I.msg("this.project.was.not.found.open.it"),'info',false);
     } catch (_error) {
-      notify('ライブラリを読み込めませんでした。サーバーの起動を確認して、一覧を再読み込みしてください。');
+      notify(I.msg("could.not.load.the.library.check.that"));
     } finally { app.loading = false; elements.loadingState.hidden = true; render(); }
     return succeeded;
   }
   async function recoverConflict(title) {
     app.pending = null;
-    if (await loadLibrary({keepNotice:true})) notify(`「${title}」は別の場所で更新されています。最新の一覧に更新しました。内容を確認して、もう一度操作してください。`, 'info', false);
+    if (await loadLibrary({keepNotice:true})) notify(I.msg("was.updated.elsewhere.the.list.is.now", {p0: title}), 'info', false);
   }
   async function toggleFavorite(id) {
     if (app.pending || app.loading) return;
@@ -302,12 +303,12 @@
     app.pending = {id,action:'favorite'}; clearNotice(); renderPending();
     try {
       const payload = await request(`/api/designs/${encodeURIComponent(id)}/favorite`, {favorite:!design.favorite,revision:design.revision});
-      if (typeof payload.favorite !== 'boolean' || !payload.revision) throw new Error('保存結果を読み取れませんでした');
-      announce(`「${design.title}」をお気に入り${payload.favorite ? 'に追加しました' : 'から外しました'}`);
+      if (typeof payload.favorite !== 'boolean' || !payload.revision) throw I.error(I.msg("could.not.read.the.save.result"));
+      announce(I.msg("favorites.2", {p0: design.title, p1: payload.favorite ? I.msg("added.to") : I.msg("removed.from")}));
       app.pending = null; await loadLibrary({keepNotice:true});
     } catch (error) {
       if (error.status === 409) await recoverConflict(design.title);
-      else notify('お気に入りの保存結果を確認できませんでした。一覧を再読み込みして、星の状態を確認してください。');
+      else notify(I.msg("could.not.confirm.the.favorite.update.reload"));
     } finally { app.pending = null; render(`favorite-${id}`); }
   }
   async function duplicateDesign(id) {
@@ -316,36 +317,36 @@
     app.pending = {id,action:'duplicate'}; clearNotice(); renderPending();
     let navigating = false;
     try {
-      const payload = await request(`/api/designs/${encodeURIComponent(id)}/duplicate`, {revision:design.revision});
-      if (typeof payload.id !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(payload.id)) throw new Error('複製結果を読み取れませんでした');
-      announce('複製した作品を開きます'); navigating = true;
+      const payload = await request(`/api/designs/${encodeURIComponent(id)}/duplicate`, {revision:design.revision,title:I.t("duplicate.title",{name:design.title})});
+      if (typeof payload.id !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(payload.id)) throw I.error(I.msg("could.not.read.the.duplicate.result"));
+      announce(I.msg("opening.the.duplicated.design")); navigating = true;
       window.location.assign(designUrl({...payload,projectId:design.projectId}));
     } catch (error) {
       if (error.status === 409) await recoverConflict(design.title);
-      else notify('複製の結果を確認できませんでした。もう一度複製する前に、一覧を再読み込みして作品を確認してください。');
+      else notify(I.msg("could.not.confirm.duplication.reload.the.list"));
     } finally { if (!navigating) { app.pending = null; render(); } }
   }
   function showDialog(dialog) {
     dialogOpeners.set(dialog, {element:document.activeElement,key:document.activeElement?.dataset.focus});
     dialog.showModal();
   }
-  function setFormMessage(element, message, tone = 'error') { element.textContent = message; element.dataset.tone = tone; element.hidden = !message; }
+  function setFormMessage(element, message, tone = 'error') { I.text(element, message); element.dataset.tone = tone; element.hidden = !message; }
   function setFormBusy(form, busy) {
     form.dataset.busy = String(busy);
     form.querySelectorAll('button,input,select').forEach(input => input.disabled = busy);
   }
   function showAddHelp() {
-    const name = overview ? '読書アプリ' : projectName(projectId);
-    elements.addRequestExample.textContent = `読書アプリの本のカードを3案考えたい。コンポーネントとして比較できるようにして、「${name}」${name === '未分類' ? '' : 'プロジェクト'}に保存して。`;
+    const name = overview ? I.msg("reading.app") : projectName(projectId);
+    I.text(elements.addRequestExample, I.msg("create.three.book.card.directions.for.a", {p0: name, p1: !overview && !projectId ? '' : I.msg("projects")}));
     showDialog(elements.addDialog);
   }
   function showProjectDialog(id = null) {
     const project = id ? app.projects.find(item => item.id === id) : null;
     if (id && !project) return;
     app.projectDraft = {id,revision:project?.revision,current:null};
-    elements.projectDialogTitle.textContent = id ? 'プロジェクト名を変更' : 'プロジェクトを作成';
+    I.text(elements.projectDialogTitle, id ? I.msg("rename.project") : I.msg("create.project"));
     elements.projectName.value = project?.name || '';
-    elements.saveProject.textContent = id ? '変更を保存' : '作成';
+    I.text(elements.saveProject, id ? I.msg("save.changes") : I.msg("create"));
     elements.projectConflict.hidden = true;
     setFormMessage(elements.projectError,'');
     showDialog(elements.projectDialog);
@@ -355,14 +356,14 @@
     event.preventDefault();
     const draft = app.projectDraft, name = elements.projectName.value.trim();
     if (!draft || elements.projectForm.dataset.busy === 'true') return;
-    if (!name) { setFormMessage(elements.projectError,'プロジェクト名を入力してください。'); elements.projectName.focus(); return; }
+    if (!name) { setFormMessage(elements.projectError,I.msg("enter.a.project.name")); elements.projectName.focus(); return; }
     setFormBusy(elements.projectForm,true); setFormMessage(elements.projectError,'');
     let saved = null;
     try {
       const path = draft.id ? `/api/projects/${encodeURIComponent(draft.id)}` : '/api/projects';
       saved = await request(path,{name,...(draft.id ? {revision:draft.revision} : {})},draft.id ? 'PATCH' : 'POST');
-      if (!saved.id || !saved.revision) throw new Error('保存結果を読み取れませんでした');
-      announce(`「${saved.name}」を${draft.id ? '変更' : '作成'}しました`);
+      if (!saved.id || !saved.revision) throw I.error(I.msg("could.not.read.the.save.result"));
+      announce(I.msg("project.saved.announcement", {p0: saved.name, p1: draft.id ? I.msg("updated.2") : I.msg("create")}));
       await loadLibrary({keepNotice:true});
     } catch (error) {
       saved = null;
@@ -370,12 +371,12 @@
         const current = error.payload.project || error.payload;
         if (current.revision && typeof current.name === 'string') {
           draft.revision = current.revision; draft.current = current;
-          elements.projectConflictCurrent.textContent = `現在の名前：${current.name}`;
+          I.text(elements.projectConflictCurrent, I.msg("current.name", {p0: current.name}));
           elements.projectConflict.hidden = false;
-          elements.saveProject.textContent = 'この名前で保存';
-          setFormMessage(elements.projectError,'別の場所で名前が変更されています。入力は残しています。現在の名前を確認してから保存してください。','info');
-        } else setFormMessage(elements.projectError,'最新の名前を読み込めませんでした。入力を控えて、一覧を再読み込みしてください。');
-      } else setFormMessage(elements.projectError, error.status === 400 ? 'プロジェクト名を確認してください。300文字まで入力できます。' : '保存結果を確認できませんでした。入力は残しています。もう一度保存すると、現在の保存内容を確認します。');
+          I.text(elements.saveProject, I.msg("save.this.name"));
+          setFormMessage(elements.projectError,I.msg("the.name.changed.elsewhere.your.input.is"),'info');
+        } else setFormMessage(elements.projectError,I.msg("could.not.load.the.latest.name.copy"));
+      } else setFormMessage(elements.projectError, error.status === 400 ? I.msg("check.the.project.name.use.up.to") : I.msg("could.not.confirm.saving.your.input.is"));
     } finally {
       setFormBusy(elements.projectForm,false);
       if (saved) {
@@ -385,10 +386,10 @@
     }
   }
   function fillProjectOptions(value) {
-    const unassigned = node('option','','未分類'); unassigned.value = '';
+    const unassigned = node('option','',I.msg("unassigned")); unassigned.value = '';
     elements.metadataProject.replaceChildren(unassigned,...app.projects.map(project => { const option=node('option','',project.name); option.value=project.id; return option; }));
     if (value && !app.projects.some(project => project.id === value)) {
-      const unknown = node('option','','現在のプロジェクト'); unknown.value = value; elements.metadataProject.append(unknown);
+      const unknown = node('option','',I.msg("current.project")); unknown.value = value; elements.metadataProject.append(unknown);
     }
     elements.metadataProject.value = value || '';
   }
@@ -399,9 +400,9 @@
   function showMetadata(id) {
     const design = app.designs.find(item => item.id === id); if (!design) return;
     app.metadataDraft = {id,revision:design.revision,current:null};
-    elements.metadataDesignTitle.textContent = design.title;
+    I.text(elements.metadataDesignTitle, design.title);
     setMetadataValues(design); elements.metadataConflict.hidden = true;
-    elements.saveMetadata.textContent = '変更を保存'; setFormMessage(elements.metadataError,'');
+    I.text(elements.saveMetadata, I.msg("save.changes")); setFormMessage(elements.metadataError,'');
     showDialog(elements.metadataDialog); elements.metadataProject.focus();
   }
   async function saveMetadata(event) {
@@ -414,11 +415,11 @@
     let saved = false;
     try {
       const payload = await request(`/api/designs/${encodeURIComponent(draft.id)}/metadata`, {revision:draft.revision,projectId:project,kind},'PATCH');
-      if (!payload.revision) throw new Error('保存結果を読み取れませんでした');
+      if (!payload.revision) throw I.error(I.msg("could.not.read.the.save.result"));
       saved = true;
       const refreshed = await loadLibrary({keepNotice:true});
-      announce('作品の所属と種類を保存しました');
-      if (refreshed && project !== projectId) notify(`「${elements.metadataDesignTitle.textContent}」を「${projectName(project)}」に移しました。`, 'info', false);
+      announce(I.msg("project.and.type.saved"));
+      if (refreshed && project !== projectId) notify(I.msg("moved.to", {p0: elements.metadataDesignTitle.textContent, p1: projectName(project)}), 'info', false);
     } catch (error) {
       if (error.status === 409) {
         let current = error.payload;
@@ -427,14 +428,14 @@
         }
         if (current.library && current.revision) {
           draft.revision = current.revision; draft.current = current.library;
-          elements.metadataConflictCurrent.textContent = `現在の保存内容：${projectName(current.library.projectId)} ／ ${kindName(current.library.kind)}`;
+          I.text(elements.metadataConflictCurrent, I.msg("currently.saved", {p0: projectName(current.library.projectId), p1: kindName(current.library.kind)}));
           elements.metadataConflict.hidden = false;
-          elements.saveMetadata.textContent = 'この入力で保存';
-          setFormMessage(elements.metadataError,'別の場所で作品が更新されています。入力は残しています。現在の保存内容を確認してから保存してください。','info');
-        } else setFormMessage(elements.metadataError,'最新の保存内容を読み込めませんでした。入力を控えて、一覧を再読み込みしてください。');
+          I.text(elements.saveMetadata, I.msg("save.this.input"));
+          setFormMessage(elements.metadataError,I.msg("this.design.changed.elsewhere.your.input.is"),'info');
+        } else setFormMessage(elements.metadataError,I.msg("could.not.load.the.saved.version.copy"));
       } else setFormMessage(elements.metadataError, error.status === 400 || error.status === 404
-        ? '作品または保存先が見つかりません。入力を控えて、一覧を再読み込みしてください。'
-        : '保存結果を確認できませんでした。入力は残しています。もう一度保存すると、現在の保存内容を確認します。');
+        ? I.msg("the.design.or.destination.was.not.found")
+        : I.msg("could.not.confirm.saving.your.input.is"));
     } finally { setFormBusy(elements.metadataForm,false); if (saved) elements.metadataDialog.close(); }
   }
   function bindEvents() {

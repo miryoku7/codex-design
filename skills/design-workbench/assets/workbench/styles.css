@@ -12,3 +12,8 @@
 .library-back{max-width:260px;min-width:0}.library-back svg{flex-shrink:0}.library-back span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}@media(max-width:760px){.library-back{max-width:160px}body[data-library=true] .topbar .brand{display:none}}
 
 .pdf-options{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.pdf-options .button{min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere;text-align:left}#pdfStatus{font-size:13px;color:var(--muted)}
+
+.locale-switch{display:inline-flex;flex-shrink:0;align-items:center}.locale-switch select{min-height:34px;max-width:108px;padding:5px 7px;border:1px solid var(--line);background:#fff;color:inherit;font:inherit;font-size:11px;border-radius:4px}.topbar{gap:16px}.top-actions{flex-wrap:wrap}.project-actions{min-width:0}.conflict-actions .button{white-space:normal}
+@media(max-width:760px){.topbar .locale-switch{margin-left:auto}.top-actions{order:2;width:100%;margin-left:0}.save-cluster{order:3}.project-actions{max-width:46%;flex-shrink:1}.adoption-status{overflow-wrap:anywhere}.project-actions .button{white-space:normal}.view-nav{flex-wrap:wrap}.dialog-footer{flex-wrap:wrap}.pdf-options .button{white-space:normal}}
+
+@media(max-width:760px){.project-actions #editBrief{white-space:nowrap;flex-shrink:0}}

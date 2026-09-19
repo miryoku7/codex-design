@@ -1,106 +1,107 @@
 <!doctype html>
-<html lang="ja">
-<head>
+<html lang="ja" data-i18n-pending>
+<head><style>html[data-i18n-pending] body{visibility:hidden}.i18n-boot{display:none}html[data-i18n-pending] .i18n-boot{visibility:visible;display:grid;position:fixed;inset:0;place-content:center;background:#fff;color:#282a31;font:500 14px system-ui}</style>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="画面とコンポーネントのデザインをプロジェクトごとに保存し、比較と調整を続ける個人用ライブラリ">
-  <title>プロジェクト | デザインライブラリ</title>
+  <meta name="description" data-i18n-content="a.personal.library.for.saving.comparing.and">
+  <title data-i18n="projects.design.library"></title>
   <link rel="stylesheet" href="/library.css">
-  <script src="/workbench/preview.js" defer></script>
+  <script src="/workbench/i18n.js" defer></script><script src="/workbench/preview.js" defer></script>
   <script src="/library.js" defer></script>
   <script src="/project-kit.js" defer></script>
 </head>
-<body>
-  <a class="skip-link" href="#mainContent">一覧へ移動</a>
+<body inert aria-busy="true">
+<div class="i18n-boot" aria-hidden="true">Codex Design</div>
+  <a class="skip-link" href="#mainContent" data-i18n="skip.to.list"></a>
   <header class="site-header">
-    <a class="brand" href="/" aria-label="デザインライブラリのホーム">
+    <a class="brand" href="/" data-i18n-aria-label="design.library.home">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true"><path d="M3 5h7v14H3zM14 5h7v6h-7zM14 15h7v4h-7z" stroke="currentColor" stroke-width="1.5"/></svg>
-      <span>デザインライブラリ</span>
+      <span data-i18n="design.library.2"></span>
     </a>
-    <nav class="site-nav" aria-label="ライブラリ"><a href="/" aria-current="page">プロジェクト</a><a href="/kits">デザインキット</a></nav>
-  </header>
+    <nav class="site-nav" data-i18n-aria-label="library"><a href="/" aria-current="page" data-i18n="projects"></a><a href="/kits" data-i18n="design.kits"></a></nav>
+  <label class="locale-switch"><span class="sr-only" data-i18n="language"></span><select data-locale-switch data-i18n-aria-label="language"><option value="ja" lang="ja">日本語</option><option value="en" lang="en">English</option></select></label></header>
 
   <main class="library" id="mainContent" tabindex="-1">
-    <nav class="breadcrumb" id="breadcrumb" aria-label="現在の場所" hidden><a href="/">プロジェクト</a><span aria-hidden="true">/</span><span id="breadcrumbCurrent" aria-current="page"></span></nav>
+    <nav class="breadcrumb" id="breadcrumb" hidden data-i18n-aria-label="current.location"><a href="/" data-i18n="projects"></a><span aria-hidden="true">/</span><span id="breadcrumbCurrent" aria-current="page"></span></nav>
     <div class="library-heading">
-      <div class="heading-copy"><h1 id="libraryTitle" tabindex="-1">プロジェクト</h1><p id="projectSummary" hidden></p></div>
+      <div class="heading-copy"><h1 id="libraryTitle" tabindex="-1" data-i18n="projects"></h1><p id="projectSummary" hidden></p></div>
       <div class="heading-actions">
-        <button class="quiet-button" id="renameProject" type="button" hidden>名前を変更</button>
-        <button class="quiet-button add-help-button" id="openAddHelp" type="button">作品の追加方法</button>
-        <button class="solid-button" id="createProject" type="button">プロジェクトを作成</button>
+        <button class="quiet-button" id="renameProject" type="button" hidden data-i18n="rename.2"></button>
+        <button class="quiet-button add-help-button" id="openAddHelp" type="button" data-i18n="how.to.add.designs"></button>
+        <button class="solid-button" id="createProject" type="button" data-i18n="create.project"></button>
       </div>
     </div>
 
     <div class="library-notice" id="libraryNotice" role="alert" hidden>
       <p id="noticeMessage"></p>
-      <div class="notice-actions"><button class="quiet-button" id="retryLoad" type="button">一覧を再読み込み</button><button class="icon-button" id="dismissNotice" type="button" aria-label="お知らせを閉じる">×</button></div>
+      <div class="notice-actions"><button class="quiet-button" id="retryLoad" type="button" data-i18n="reload.list"></button><button class="icon-button" id="dismissNotice" type="button" data-i18n-aria-label="dismiss.notification">×</button></div>
     </div>
 
-    <section id="projectOverview" aria-label="プロジェクト一覧" aria-busy="true">
-      <p class="project-empty-note" id="noProjects" hidden>プロジェクトはまだありません。保存済みの作品は「未分類」から開けます。</p>
+    <section id="projectOverview" aria-busy="true" data-i18n-aria-label="project.list">
+      <p class="project-empty-note" id="noProjects" hidden data-i18n="no.projects.yet.open.saved.designs.under"></p>
       <ul class="project-list" id="projectList"></ul>
     </section>
 
-    <section id="projectGallery" aria-label="プロジェクトの作品" hidden>
-      <div class="project-kit-context" id="projectKitContext" hidden><div class="project-kit-copy"><span class="project-kit-label">デザインキット</span><div id="projectKitValue">未設定</div></div><button class="quiet-button" id="chooseProjectKit" type="button">キットを選ぶ</button></div>
+    <section id="projectGallery" hidden data-i18n-aria-label="project.designs">
+      <div class="project-kit-context" id="projectKitContext" hidden><div class="project-kit-copy"><span class="project-kit-label" data-i18n="design.kits"></span><div id="projectKitValue" data-i18n="not.set"></div></div><button class="quiet-button" id="chooseProjectKit" type="button" data-i18n="choose.kit"></button></div>
       <div class="library-toolbar">
         <div class="filter-controls">
-          <div class="filter-tabs" role="group" aria-label="作品の種類">
-            <button type="button" class="filter-tab" id="allFilter" data-kind="all" aria-pressed="true">すべて</button>
-            <button type="button" class="filter-tab" id="screenFilter" data-kind="screen" aria-pressed="false">画面</button>
-            <button type="button" class="filter-tab" id="componentFilter" data-kind="component" aria-pressed="false">コンポーネント</button>
+          <div class="filter-tabs" role="group" data-i18n-aria-label="design.type">
+            <button type="button" class="filter-tab" id="allFilter" data-kind="all" aria-pressed="true" data-i18n="all"></button>
+            <button type="button" class="filter-tab" id="screenFilter" data-kind="screen" aria-pressed="false" data-i18n="screen"></button>
+            <button type="button" class="filter-tab" id="componentFilter" data-kind="component" aria-pressed="false" data-i18n="component"></button>
           </div>
-          <button type="button" class="favorite-filter" id="favoriteFilter" aria-pressed="false"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><path d="m10 2.8 2.15 4.35 4.8.7-3.48 3.38.82 4.78L10 13.75l-4.29 2.26.82-4.78L3.05 7.85l4.8-.7L10 2.8Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>お気に入り</button>
+          <button type="button" class="favorite-filter" id="favoriteFilter" aria-pressed="false"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><path d="m10 2.8 2.15 4.35 4.8.7-3.48 3.38.82 4.78L10 13.75l-4.29 2.26.82-4.78L3.05 7.85l4.8-.7L10 2.8Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg><span data-i18n="favorites.3"></span></button>
         </div>
-        <label class="search-field" for="designSearch"><span>作品名で検索</span><span class="search-input"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="m12.5 12.5 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="designSearch" type="search" autocomplete="off" placeholder="作品の名前"></span></label>
+        <label class="search-field" for="designSearch"><span data-i18n="search.by.design.name"></span><span class="search-input"><svg viewBox="0 0 20 20" width="17" height="17" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="m12.5 12.5 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><input id="designSearch" type="search" autocomplete="off" data-i18n-placeholder="design.name"></span></label>
       </div>
       <p class="result-context" id="resultContext" aria-live="polite"></p>
       <div class="design-grid" id="designGrid" aria-busy="true"></div>
-      <section class="empty-state" id="emptyState" aria-labelledby="emptyTitle" hidden><h2 id="emptyTitle">作品はまだありません</h2><p id="emptyDescription">Codexに画面やコンポーネントの制作を依頼し、このプロジェクトに保存してください。</p><button class="quiet-button" id="emptyAction" type="button">作品の追加方法</button></section>
+      <section class="empty-state" id="emptyState" aria-labelledby="emptyTitle" hidden><h2 id="emptyTitle" data-i18n="no.designs.yet.2"></h2><p id="emptyDescription" data-i18n="ask.codex.to.create.a.screen.or.2"></p><button class="quiet-button" id="emptyAction" type="button" data-i18n="how.to.add.designs"></button></section>
     </section>
-    <div class="loading-state" id="loadingState" role="status">ライブラリを読み込んでいます</div>
+    <div class="loading-state" id="loadingState" role="status" data-i18n="loading.library"></div>
     <p id="actionStatus" class="sr-only" role="status" aria-live="polite"></p>
   </main>
 
   <dialog class="library-dialog add-dialog" id="addDialog" aria-labelledby="addDialogTitle">
-    <div class="dialog-heading"><h2 id="addDialogTitle">作品をライブラリに追加する</h2><button class="icon-button" data-close="addDialog" type="button" aria-label="追加方法を閉じる">×</button></div>
-    <p>Codexに、つくりたい画面やコンポーネントと、保存先のプロジェクトを伝えてください。</p>
-    <div class="request-example"><span>たとえば、こんな依頼から</span><p id="addRequestExample">読書アプリの本のカードを3案考えたい。コンポーネントとして比較できるようにして、「読書アプリ」プロジェクトに保存して。</p></div>
-    <p>作成済みのデザインを取り込むときは、ファイルの場所、プロジェクト名、画面かコンポーネントかを伝えます。保存先が決まっていない作品は「未分類」に置けます。</p>
-    <p class="preview-help">プレビューでは見た目を比較し、色や余白などを調整できます。アプリとしての動作は、実装先で確かめます。</p>
-    <div class="dialog-footer"><button class="solid-button" data-close="addDialog" type="button">閉じる</button></div>
-  </dialog>
+    <div class="dialog-heading"><h2 id="addDialogTitle" data-i18n="add.designs.to.the.library"></h2><button class="icon-button" data-close="addDialog" type="button" data-i18n-aria-label="close.adding.instructions">×</button></div>
+    <p data-i18n="tell.codex.what.screen.or.component.to"></p>
+    <div class="request-example"><span data-i18n="for.example.try.this.request"></span><p id="addRequestExample" data-i18n="create.three.book.card.directions.for.a.2"></p></div>
+    <p data-i18n="to.import.an.existing.design.provide.its"></p>
+    <p class="preview-help" data-i18n="compare.appearance.and.adjust.colors.and.spacing"></p>
+    <div class="dialog-footer"><button class="solid-button" data-close="addDialog" type="button" data-i18n="close"></button></div>
+  <label class="locale-switch"><span class="sr-only" data-i18n="language"></span><select data-locale-switch data-i18n-aria-label="language"><option value="ja" lang="ja">日本語</option><option value="en" lang="en">English</option></select></label></dialog>
 
   <dialog class="library-dialog" id="projectDialog" aria-labelledby="projectDialogTitle">
     <form id="projectForm">
-      <div class="dialog-heading"><h2 id="projectDialogTitle">プロジェクトを作成</h2><button class="icon-button" data-close="projectDialog" type="button" aria-label="プロジェクトの編集を閉じる">×</button></div>
-      <label class="form-field" for="projectName"><span>プロジェクト名</span><input id="projectName" name="name" type="text" required maxlength="300" autocomplete="off" placeholder="例：読書アプリ"></label>
+      <div class="dialog-heading"><h2 id="projectDialogTitle" data-i18n="create.project"></h2><button class="icon-button" data-close="projectDialog" type="button" data-i18n-aria-label="close.project.editor">×</button></div>
+      <label class="form-field" for="projectName"><span data-i18n="project.name"></span><input id="projectName" name="name" type="text" required maxlength="300" autocomplete="off" data-i18n-placeholder="example.reading.app"></label>
       <div class="form-message" id="projectError" role="alert" hidden></div>
-      <div class="conflict-detail" id="projectConflict" hidden><p id="projectConflictCurrent"></p><button class="text-button" id="useCurrentProject" type="button">現在の名前を入力に戻す</button></div>
-      <div class="dialog-footer"><button class="quiet-button" data-close="projectDialog" type="button">キャンセル</button><button class="solid-button" id="saveProject" type="submit">作成</button></div>
+      <div class="conflict-detail" id="projectConflict" hidden><p id="projectConflictCurrent"></p><button class="text-button" id="useCurrentProject" type="button" data-i18n="use.the.current.name"></button></div>
+      <div class="dialog-footer"><button class="quiet-button" data-close="projectDialog" type="button" data-i18n="cancel"></button><button class="solid-button" id="saveProject" type="submit" data-i18n="create"></button></div>
     </form>
-  </dialog>
+  <label class="locale-switch"><span class="sr-only" data-i18n="language"></span><select data-locale-switch data-i18n-aria-label="language"><option value="ja" lang="ja">日本語</option><option value="en" lang="en">English</option></select></label></dialog>
 
   <dialog class="library-dialog" id="metadataDialog" aria-labelledby="metadataDialogTitle">
     <form id="metadataForm">
-      <div class="dialog-heading"><h2 id="metadataDialogTitle">所属と種類を変更</h2><button class="icon-button" data-close="metadataDialog" type="button" aria-label="所属と種類の編集を閉じる">×</button></div>
+      <div class="dialog-heading"><h2 id="metadataDialogTitle" data-i18n="change.project.and.type"></h2><button class="icon-button" data-close="metadataDialog" type="button" data-i18n-aria-label="close.project.and.type.editor">×</button></div>
       <p class="editing-design" id="metadataDesignTitle"></p>
-      <label class="form-field" for="metadataProject"><span>プロジェクト</span><select id="metadataProject" name="projectId"></select></label>
-      <fieldset class="form-field kind-field"><legend>作品の種類</legend><div class="kind-options"><label><input type="radio" name="kind" value="screen" checked><span>画面</span></label><label><input type="radio" name="kind" value="component"><span>コンポーネント</span></label></div></fieldset>
-      <p class="field-hint">種類を変更しても、デザインや表示サイズはそのままです。</p>
+      <label class="form-field" for="metadataProject"><span data-i18n="projects"></span><select id="metadataProject" name="projectId"></select></label>
+      <fieldset class="form-field kind-field"><legend data-i18n="design.type"></legend><div class="kind-options"><label><input type="radio" name="kind" value="screen" checked><span data-i18n="screen"></span></label><label><input type="radio" name="kind" value="component"><span data-i18n="component"></span></label></div></fieldset>
+      <p class="field-hint" data-i18n="changing.the.type.preserves.the.design.and"></p>
       <div class="form-message" id="metadataError" role="alert" hidden></div>
-      <div class="conflict-detail" id="metadataConflict" hidden><p id="metadataConflictCurrent"></p><button class="text-button" id="useCurrentMetadata" type="button">現在の保存内容を入力に戻す</button></div>
-      <div class="dialog-footer"><button class="quiet-button" data-close="metadataDialog" type="button">キャンセル</button><button class="solid-button" id="saveMetadata" type="submit">変更を保存</button></div>
+      <div class="conflict-detail" id="metadataConflict" hidden><p id="metadataConflictCurrent"></p><button class="text-button" id="useCurrentMetadata" type="button" data-i18n="use.the.current.saved.values"></button></div>
+      <div class="dialog-footer"><button class="quiet-button" data-close="metadataDialog" type="button" data-i18n="cancel"></button><button class="solid-button" id="saveMetadata" type="submit" data-i18n="save.changes"></button></div>
     </form>
-  </dialog>
+  <label class="locale-switch"><span class="sr-only" data-i18n="language"></span><select data-locale-switch data-i18n-aria-label="language"><option value="ja" lang="ja">日本語</option><option value="en" lang="en">English</option></select></label></dialog>
   <dialog class="library-dialog" id="projectKitDialog" aria-labelledby="projectKitDialogTitle">
-    <form id="projectKitForm"><div class="dialog-heading"><h2 id="projectKitDialogTitle">プロジェクトのデザインキット</h2><button class="icon-button" id="closeProjectKit" type="button" aria-label="キットの選択を閉じる">×</button></div>
-      <label class="form-field" for="projectKitSelect"><span>キット</span><select id="projectKitSelect"><option value="">設定しない</option></select></label>
-      <label class="form-field" for="projectKitVersion" id="projectKitVersionField" hidden><span>固定する版</span><select id="projectKitVersion"></select></label>
-      <p class="field-hint">選んだ版を制作時の基準にします。保存済みの作品は変わりません。</p>
-      <div class="form-message" id="projectKitError" role="alert" hidden></div><div class="conflict-detail" id="projectKitConflict" hidden><p id="projectKitConflictCurrent"></p><button class="text-button" id="useCurrentProjectKit" type="button">現在の設定を入力に戻す</button></div>
-      <div class="dialog-footer"><button class="quiet-button" id="cancelProjectKit" type="button">キャンセル</button><button class="solid-button" id="saveProjectKit" type="submit">選んだ版を固定</button></div>
+    <form id="projectKitForm"><div class="dialog-heading"><h2 id="projectKitDialogTitle" data-i18n="project.design.kit"></h2><button class="icon-button" id="closeProjectKit" type="button" data-i18n-aria-label="close.kit.selection">×</button></div>
+      <label class="form-field" for="projectKitSelect"><span data-i18n="kit"></span><select id="projectKitSelect"><option value="" data-i18n="no.kit"></option></select></label>
+      <label class="form-field" for="projectKitVersion" id="projectKitVersionField" hidden><span data-i18n="version.to.pin"></span><select id="projectKitVersion"></select></label>
+      <p class="field-hint" data-i18n="the.selected.version.becomes.the.reference.for"></p>
+      <div class="form-message" id="projectKitError" role="alert" hidden></div><div class="conflict-detail" id="projectKitConflict" hidden><p id="projectKitConflictCurrent"></p><button class="text-button" id="useCurrentProjectKit" type="button" data-i18n="use.the.current.setting"></button></div>
+      <div class="dialog-footer"><button class="quiet-button" id="cancelProjectKit" type="button" data-i18n="cancel"></button><button class="solid-button" id="saveProjectKit" type="submit" data-i18n="pin.selected.version"></button></div>
     </form>
-  </dialog>
+  <label class="locale-switch"><span class="sr-only" data-i18n="language"></span><select data-locale-switch data-i18n-aria-label="language"><option value="ja" lang="ja">日本語</option><option value="en" lang="en">English</option></select></label></dialog>
 </body>
 </html>

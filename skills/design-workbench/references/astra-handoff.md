@@ -7,6 +7,7 @@ Use this when the supervising model is not verifiably Astra. Select the availabl
 Give Astra:
 
 - The user's brief and exact relevant feedback, target screen/device, shared content/data, and actual reference assets available locally.
+- The conversation language and the authored content language separately. Preserve existing content and notes unless translation is requested; the workbench's GUI locale is independent.
 - The ownership boundary: preview output files and permitted runtime changes; other writers and forbidden files.
 - The current session on follow-up, including adopted ID, active review candidate, all adjusted values, notes, and the earlier direction to preserve.
 - The file contract from `workshop.md`; every direction has its own `index.html`, `style.css`, and `controls.json`. Assign the variant directories explicitly. Read the current session for user adjustments, and keep authored files separate from saved state.

@@ -1,6 +1,8 @@
 /* Isolated, in-memory browser checks; no workspace/D1 access. */
 (() => {
   'use strict';
+  // These existing text assertions intentionally exercise the Japanese locale.
+  localStorage.setItem('codex-design.locale', 'ja');
   const tokens = {accent:'#4051ac',background:'#f2eee5',text:'#252833',spacing:24,fontSize:16,radius:8};
   const image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA8CAIAAAB+RarbAAAAdUlEQVR4nOXOMQEAMAyAMIZ/z52L9iAK8oYWiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYiZEYrwPbPrwcAXdMf1N5AAAAAElFTkSuQmCC';
   const variant = id => ({id,name:`案${id} <title>`,rationale:'PDF fixture',notes:'keep notes',tokens:{...tokens},baselineTokens:{...tokens},

@@ -1,3 +1,4 @@
+import { locale, kitMessages } from './i18n';
 import type { Context, Hono } from 'hono';
 import { InvalidInput, requiredString, validateSession } from './session';
 import { exportKit, kitId, kitVersion, preparedContent, validateKitContent, validateSource, type KitContent, type KitExample, type KitVersion } from './kits';
@@ -65,15 +66,16 @@ export function registerKitRoutes<P>(app: Hono<AppEnv>, deps: Dependencies<P>) {
       if (!variant) return missing(c, 'Source variant');
       examples.push({ id: `example-${index + 1}`, name: Array.from(`${state.title} / ${variant.name}`).slice(0, 300).join(''), kind: row.kind as 'screen' | 'component', source, variant: structuredClone(variant), viewport: structuredClone(state.viewport ?? { width: 390, height: 760, preset: 'mobile' }) });
     }
-    return c.json({ content: preparedContent(body.name, examples) });
+    return c.json({ content: preparedContent(body.name, examples, locale(body.locale)) });
   });
   app.post('/api/kits', async (c) => {
     const body = await deps.payload(c);
     const content = validateKitContent(body.content);
+    const language = locale(body.locale);
     const id = deps.newId(); const now = new Date().toISOString();
     await c.env.DB.batch([
       c.env.DB.prepare('INSERT INTO design_kits (id, name, description, revision, latest_version, created_at, updated_at) VALUES (?, ?, ?, ?, 1, ?, ?)').bind(id, content.name, content.description, deps.newId(), now, now),
-      c.env.DB.prepare('INSERT INTO design_kit_versions (kit_id, version, content_json, summary, created_at) VALUES (?, 1, ?, ?, ?)').bind(id, JSON.stringify(content), '初版', now),
+      c.env.DB.prepare('INSERT INTO design_kit_versions (kit_id, version, content_json, summary, created_at) VALUES (?, 1, ?, ?, ?)').bind(id, JSON.stringify(content), kitMessages[language].initialVersion, now),
     ]);
     return c.json((await detail(c, id))!, 201);
   });
@@ -105,7 +107,7 @@ export function registerKitRoutes<P>(app: Hono<AppEnv>, deps: Dependencies<P>) {
     const legacyUrl = new URL('/workbench/legacy-v1.css', c.req.url);
     const [runtime, legacy] = await Promise.all([c.env.ASSETS.fetch(new Request(runtimeUrl)), c.env.ASSETS.fetch(new Request(legacyUrl))]);
     if (!runtime.ok || !legacy.ok) throw new Error('Preview runtime assets are unavailable');
-    return c.json(await exportKit(savedVersion(row), await runtime.text(), await legacy.text()));
+    return c.json(await exportKit(savedVersion(row), await runtime.text(), await legacy.text(), locale(c.req.query('locale'))));
   });
   app.patch('/api/projects/:id/kit', async (c) => {
     const id = kitId(c.req.param('id'), 'projectId'); const body = await deps.payload(c);

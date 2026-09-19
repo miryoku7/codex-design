@@ -6,6 +6,12 @@
 
 MITライセンスのローカルアプリ＋Codex Skillです。OpenAIの公式製品ではありません。ソース一式を取得して使う構成で、npmパッケージとしての公開や共有サーバーでの運用は対象にしていません。
 
+GUIは日本語・英語に対応しています。画面上部の「日本語 / English」で切り替えると、同じブラウザ・同じオリジンのライブラリ、キット、比較・調整画面に引き継がれます。初回はブラウザの対応言語を使い、対応言語がなければ日本語になります。別ポートの単独ワークベンチは別の設定です。作品名・本文・メモ・独自の調整項目・保存済みキットは自動翻訳しません。
+
+操作画面の文言は日英の辞書で管理します。HTMLには翻訳キーを置き、選択言語の文言を適用してから画面を表示するため、英語設定時に日本語の操作画面が先に出ることはありません。
+
+The GUI supports Japanese and English. Use the language selector in the header; your choice is remembered for that origin. Saved design content stays in its original language. The Codex Skill accepts requests in either language: [bilingual examples and language rules](skills/design-workbench/references/language.md).
+
 アプリ、Skill、CLI、テスト、文書を同じリポジトリで管理します。リポジトリのルートから起動・検証し、アプリとSkillを一緒に更新してください。ライブラリのコードは `src/`・`web/`、制作手順と単独ワークベンチは `skills/design-workbench/` にあります。
 
 ## 必要な環境
@@ -187,6 +193,7 @@ python3 skills/design-workbench/scripts/migrate_session.py --project .design-wor
 
 ```sh
 npm run typecheck
+npm run check:i18n
 npm test
 python3 skills/design-workbench/scripts/test_runtime.py
 ```

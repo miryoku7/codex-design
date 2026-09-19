@@ -165,7 +165,7 @@ test('versioned Design Kits preserve source snapshots, immutable versions and ex
     });
 
     await t.test('token scalars, source provenance and complete examples are validated before any version write', async () => {
-      const before = await db.prepare('SELECT * FROM design_kit_versions ORDER BY kit_id, version').all();
+      const before = (await db.prepare('SELECT * FROM design_kit_versions ORDER BY kit_id, version').all()).results;
       const invalid = [
         (copy) => { copy.tokens[0].value = '#fff; } body {color:red'; },
         (copy) => { copy.tokens[0].value = 'url(https://example.com)'; },
@@ -186,7 +186,8 @@ test('versioned Design Kits preserve source snapshots, immutable versions and ex
         const copy = structuredClone(content); mutate(copy);
         assert.equal((await request('POST', `/api/kits/${kit.id}/versions`, { revision: kit.revision, content: copy, summary: 'invalid' })).status, 400);
       }
-      assert.deepEqual(await db.prepare('SELECT * FROM design_kit_versions ORDER BY kit_id, version').all(), before);
+      // Query timing metadata can differ even when no stored row changed.
+      assert.deepEqual((await db.prepare('SELECT * FROM design_kit_versions ORDER BY kit_id, version').all()).results, before);
       const expanded = structuredClone(content);
       expanded.tokens.push({ name: 'font-family', type: 'fontFamily', value: '"Hiragino Sans", sans-serif', description: '日本語フォント' });
       assert.equal((await request('POST', '/api/kits', { content: expanded })).status, 201);
@@ -222,6 +223,38 @@ test('versioned Design Kits preserve source snapshots, immutable versions and ex
       assert.equal((await request('GET', `/api/kits/${saved.id}/versions/2/export`)).status, 404);
       assert.equal(await (await mf.dispatchFetch(new URL('/kits', await mf.ready))).text(), 'asset:/kits.html');
       assert.equal(await (await mf.dispatchFetch(new URL(`/kits/${saved.id}`, await mf.ready))).text(), 'asset:/kits.html');
+    });
+    await t.test('locale controls generated kit text and exports without translating saved authored content', async () => {
+      const source = await createDesign();
+      const before = (await request('GET', `/api/designs/${source.id}/state`)).body;
+      const prepared = await request('POST', '/api/kits/prepare', { ...recipe(source), locale: 'en' });
+      assert.equal(prepared.status, 200);
+      assert.equal(prepared.body.content.name, 'New design kit');
+      assert.match(prepared.body.content.rules, /## Usage/);
+      assert.equal(prepared.body.content.tokens.find(token => token.name === 'accent').description, 'Color for actions and emphasis');
+      assert.equal(prepared.body.content.tokens.find(token => token.name === 'heading-size').description, '見出しサイズ');
+      assert.deepEqual(prepared.body.content.examples[0].variant, before.state.variants[0]);
+      const saved = (await request('POST', '/api/kits', { content: prepared.body.content, locale: 'en' })).body;
+      assert.equal(saved.versions[0].summary, 'Initial version');
+      for (const language of ['ja', 'en']) {
+        const exported = await request('GET', `/api/kits/${saved.id}/versions/1/export?locale=${language}`);
+        assert.equal(exported.status, 200);
+        const files = new Map(exported.body.files.map(file => [file.path, file.content]));
+        assert.match(files.get('GUIDE.md'), language === 'en' ? /## Tokens/ : /## トークン/);
+        assert.match(files.get('examples/example-1/preview.html'), new RegExp(`lang="${language}"`));
+        assert.deepEqual(JSON.parse(files.get('kit.json')).content, saved.content);
+        assert.deepEqual(JSON.parse(files.get('examples/example-1/variant.json')).variant, before.state.variants[0]);
+      }
+      assert.deepEqual((await request('GET', `/api/designs/${source.id}/state`)).body, before);
+      const japanese = await request('POST', '/api/kits/prepare', recipe(source));
+      assert.equal(japanese.body.content.name, '新しいデザインキット');
+      const count = (await request('GET', '/api/kits')).body.kits.length;
+      for (const locale of ['fr', '', null, 1]) {
+        assert.equal((await request('POST', '/api/kits/prepare', { ...recipe(source), locale })).status, 400);
+        assert.equal((await request('POST', '/api/kits', { content: saved.content, locale })).status, 400);
+      }
+      assert.equal((await request('GET', `/api/kits/${saved.id}/versions/1/export?locale=fr`)).status, 400);
+      assert.equal((await request('GET', '/api/kits')).body.kits.length, count);
     });
   } finally {
     await mf.dispose(); await rm(directory, { recursive: true, force: true });

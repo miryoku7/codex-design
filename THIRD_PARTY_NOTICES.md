@@ -13,6 +13,7 @@ Codex Designの独自コード、文書、Skill、同梱サンプルは [MIT Lic
 | hono | 4.13.7 | アプリのAPI | MIT |
 | @cloudflare/workers-types | 5.20260910.1 | 開発用の型定義 | MIT OR Apache-2.0 |
 | esbuild | 0.28.2 | テスト用のバンドル | MIT |
+| acorn | 8.15.0 | 翻訳漏れ検査のJavaScript構文解析（2026-09-19追加） | MIT |
 | miniflare | 5.20260908.0-alpha | ローカルWorkers/D1 | MIT |
 | typescript | 7.0.2 | 型検査 | Apache-2.0 |
 | wrangler | 4.130.0 | ローカル開発・DB移行 | MIT OR Apache-2.0 |

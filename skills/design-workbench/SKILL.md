@@ -1,11 +1,19 @@
 ---
 name: design-workbench
-description: Have Astra design screens, landing pages, or components with proactively generated image assets, compare and tweak them in a browser, and resume saved works from a project-organized Design Library. Use for Astra-led design exploration and iterative workshops before implementation.
+description: Have Astra design screens, landing pages, or components with generated image assets, compare and tweak them in a browser, and resume saved works from a Design Library. Use for design exploration before implementation, in Japanese or English. 日本語・英語で画面や部品の案を制作・比較・調整する。
 ---
 
 # Design Workbench
 
 Turn “show me a few directions” into an Astra-led browser workshop. Astra owns the design; the workbench supplies consistent comparison, focus, live controls, saved feedback, and export. Use the user's language.
+
+## Language / 言語
+
+Use the user's latest requested conversation language (Japanese or English); otherwise continue in the language of their request. Explain questions, comparisons, save/conflict messages, and handoffs in that language. Do not infer the conversation language from an existing Japanese sample or the browser setting. Read [references/language.md](references/language.md) for bilingual invocation examples and terminology when guiding either workflow.
+
+The GUI has its own 日本語 / English selector, shared by the library, kits, and workbench on the same origin. A saved choice takes priority over browser languages; unsupported languages fall back to Japanese. Switching it does not translate saved works or change their revision. Keep the language of authored copy, variant names, control labels, notes, and kit rules unless the user requests a translation. If a user asks for an English screen in a Japanese conversation, conduct the conversation in Japanese and have Astra author the screen in English. Include both languages explicitly in the Astra handoff. CLI commands, IDs, paths, and schema keys stay unchanged.
+
+日本語の依頼には日本語で、英語の依頼には英語で応答します。会話の言語、GUIの表示言語、制作する作品の言語は別々に扱います。既存作品やメモを、表示言語の切り替えだけで翻訳・上書きしません。
 
 Image generation is part of design authorship. For landing pages and other image-led work, proactively create and integrate useful photos, illustrations, and supporting assets; do not wait for the user to say “use imagegen.” Read [references/image-assets.md](references/image-assets.md) when planning that work, before authoring the layout.
 

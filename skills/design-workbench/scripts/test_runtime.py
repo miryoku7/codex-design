@@ -220,6 +220,10 @@ class RuntimeTests(unittest.TestCase):
         status, body = self.request("GET", "/")
         self.assertEqual(status, 200)
         self.assertIsInstance(body, str)
+        self.assertIn('i18n.js', body)
+        status, dictionary = self.request("GET", "/i18n.js")
+        self.assertEqual(status, 200)
+        self.assertIn('DesignI18n', dictionary)
         self.assertEqual(self.request("GET", "/A/index.html")[0], 404)
 
     def test_source_edit_conflicts_and_retry_cannot_revert_author_content(self):
