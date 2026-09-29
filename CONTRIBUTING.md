@@ -12,6 +12,19 @@ Codex Designは、ローカルでデザインを比較・調整・保存する�
 
 このリポジトリでAIにデザインやHTML/CSSを制作させる場合は [AGENTS.md](AGENTS.md) のAstra担当方針に従い、実際に使用したモデルを記録します。表示や制作方針を変える提案では、意図と対象画面を明記してください。
 
+## Gitと履歴の規則
+
+この規則はCodex・Claude Codeなどのツールを使う場合も、人が手で作業する場合も同じです。規則の検査は特定のPCに依存せず、`npm test`・`npm run check:repo`・CIで動きます。
+
+- **本線**: `main` は常に `npm test` が通る状態にします。変更はブランチからPull Requestで取り込みます。
+- **ブランチ名**: `feat/…`・`fix/…`・`docs/…`・`test/…`・`refactor/…`・`chore/…`（英小文字とハイフン）。ツールが `codex/…` のような名前を付けた場合は、Pull Requestの前に付け替えます。
+- **commitメッセージ**: `type(scope): 要約`（Conventional Commits）。typeは `feat` `fix` `docs` `test` `refactor` `perf` `build` `ci` `chore` `revert`。要約は英語の命令形、72文字以内、末尾のピリオドなし。本文には「なぜ」を書き、1行目との間に空行を入れます。1つのcommitは1つのテーマにします。
+- **統合（マージ）**: Pull Requestは **Squash and merge** で取り込み、`main` の履歴は直線にします。squash後のcommitの1行目はPRタイトルになるため、PRタイトルを上のcommit形式にします（CIが検査します）。PR内の個々のcommitは、途中経過として自由に書いて構いません。`main` へ直接pushしない・force pushしないことを、GitHubのブランチ保護（PR必須、CI必須、force push禁止）で設定します。
+- **リリース**: 版は `vMAJOR.MINOR.PATCH` のタグで付け、変更点はタグごとのGitHub Releaseに書きます。
+- **含めないもの**: 作品・DB・`.env*`・認証情報、この環境に固有のパス（`/Users/…` など）、1MBを超えるファイル。画像はcommit前に縮小します。
+- **AIの利用**: このプロジェクトはAIコーディングツールを使って開発されます。commitの責任は、commitする人が持ちます。使ったツールをcommitに残したいときは、本文末尾に `Assisted-by: ツール名` を書きます（任意）。AIを `Co-Authored-By` にしないでください。共同作者は人だけです。
+- **設定**: clone後に `npm run setup:hooks` を1回実行すると、commit時に上のメッセージ規則が検査されます。Pull Requestではタイトルが、`main` へのpushではcommitの1行目が、CIで検査されます。
+
 ## 検証
 
 リポジトリのルートで実行します。
@@ -23,6 +36,7 @@ npm run check:i18n
 npm test
 python3 skills/design-workbench/scripts/test_runtime.py
 git diff --check
+npm run check:repo
 ```
 
 テストは一時ディレクトリのD1とサンプルを使います。現用の `.wrangler/` や作品をテスト用に消去・上書きしないでください。変更したJavaScriptには `node --check ファイル名` を実行します。UIを変更した場合は `npm run prepare-assets` の後に実ブラウザで対象の画面とviewportを確認し、テストの成功と見た目の採用を区別して報告してください。

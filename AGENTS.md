@@ -33,3 +33,10 @@
 - 変更したJavaScript: `node --check <file>`
 - UI変更は対象viewportの実ブラウザで確認する。テストPASSとデザイン採用は別の事実として記録する。
 - 保存・複製・移行では、元作品の保持、リセット値、メモ、採用状態、同時更新の競合を確認する。
+
+## Gitと履歴
+
+- ブランチ名・commitメッセージ・含めないもの・AI利用の書き方は [CONTRIBUTING.md](CONTRIBUTING.md) の「Gitと履歴の規則」が正本。ツールを問わず従う。
+- commit/pushは明示依頼時のみ。AIを `Co-Authored-By` にしない（`Assisted-by:` は任意）。
+- PRはSquash and merge。PRタイトルをcommit形式にする（CIが検査）。
+- commit前に `npm test` と `npm run check:repo` を実行する。
