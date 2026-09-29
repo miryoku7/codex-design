@@ -4,6 +4,8 @@
 
 ![Codex Designの比較画面。架空のコーヒー定期便のLPが4案並ぶ / The compare view showing four landing-page directions for a fictional coffee subscription](docs/images/compare.jpg)
 
+[▶ 紹介動画（約30秒・音声なし） / Intro video (30 s, no audio)](https://github.com/miryoku7/codex-design/releases/download/v0.1.0/codex-design-intro.mp4) — 依頼、3案の比較、調整、続きからの依頼までを実際の操作で見せます。動画中の待ち時間は省略しています。
+
 ## できること
 
 1. **頼む** — Codexに `$design-workbench` で「ランディングページを3案作って」と頼むと、Astraが構成の違う案（画像生成を含む）を作り、ライブラリに保存します。
@@ -14,11 +16,13 @@
 
 アプリはHono / Cloudflare Workers / D1で構成し、まずローカルD1で動かします。Skill本体は [skills/design-workbench/SKILL.md](skills/design-workbench/SKILL.md)。HTML・CSSを直接編集する単独ワークベンチも利用できます。
 
-MITライセンスのローカルアプリ＋Codex Skillです。OpenAIの公式製品ではありません。ソース一式を取得して使う構成で、npmパッケージとしての公開や共有サーバーでの運用は対象にしていません。
+MITライセンスのローカルアプリ＋Codex Skillです。OpenAIおよびAnthropicの公式製品ではなく、いずれの企業とも提携していません。「Codex」はOpenAI、「Claude」はAnthropicの名称です。ソース一式を取得して使う構成で、npmパッケージとしての公開や共有サーバーでの運用は対象にしていません。
 
 GUIは日本語・英語に対応しています。画面上部の「日本語 / English」で切り替えると、同じブラウザ・同じオリジンのライブラリ、キット、比較・調整画面に引き継がれます。初回はブラウザの対応言語を使い、対応言語がなければ日本語になります。別ポートの単独ワークベンチは別の設定です。作品名・本文・メモ・独自の調整項目・保存済みキットは自動翻訳しません。
 
 操作画面の文言は日英の辞書で管理します。HTMLには翻訳キーを置き、選択言語の文言を適用してから画面を表示するため、英語設定時に日本語の操作画面が先に出ることはありません。
+
+**In English:** Codex Design is a local design library plus a Codex Skill. Ask Codex (Astra) for design directions, compare and tweak them in the browser, save your tweaks, and continue from them in your next request. Screens and components are organized per project. MIT-licensed; not affiliated with or endorsed by OpenAI or Anthropic.
 
 The GUI supports Japanese and English. Use the language selector in the header; your choice is remembered for that origin. Saved design content stays in its original language. The Codex Skill accepts requests in either language: [bilingual examples and language rules](skills/design-workbench/references/language.md).
 
