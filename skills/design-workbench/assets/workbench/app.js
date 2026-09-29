@@ -162,7 +162,7 @@
   }
   function renderInspector() {
     const v=getVariant();if(!v)return;I.text(els.inspectorTitle, `${v.id}　${v.name}`);I.text(els.selectedRationale, v.rationale);els.notesInput.value=v.notes||'';
-    els.tweakControls.replaceChildren(...(v.tweaks||[]).map(d=>makeControl(d,tweakValue(v,d),'tweak')));els.tokenControls.replaceChildren(...TOKEN_DEFS.map(d=>makeControl(d,v.tokens[d.id],'token')));els.baseControls.open=!(v.tweaks||[]).length;updateAdoption();
+    els.tweakControls.replaceChildren(...(v.tweaks||[]).map(d=>makeControl(d,tweakValue(v,d),'tweak')));els.tokenControls.replaceChildren(...TOKEN_DEFS.map(d=>makeControl(d,v.tokens[d.id],'token')));if(els.baseControls.dataset.variant!==v.id){els.baseControls.dataset.variant=v.id;els.baseControls.open=!(v.tweaks||[]).length;}updateAdoption();
   }
   function renderAll() {if(!app.state)return;normalizeView();preserveFocus(()=>{renderBrief();renderNav();renderVariants();renderInspector();const vp=viewport();els.viewportPreset.value=vp.preset||'custom';els.viewportWidth.value=vp.width;els.viewportHeight.value=vp.height;});}
   function refreshOpenFocus(){normalizeView();}

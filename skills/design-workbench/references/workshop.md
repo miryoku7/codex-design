@@ -140,4 +140,6 @@ Wait until the browser says saved and stop that session's server before migratio
 6. External session changes become visible without silently losing a browser draft.
 7. Actual Astra invocation is recorded separately from self-reported model labels; rendered screenshots satisfy the visual criteria in SKILL.md.
 
+Checks 2–4 can be exercised with one command: `node "$SKILL_DIR/scripts/verify_preview.mjs" --url <preview URL>` (see SKILL.md, Visual acceptance). It covers viewport screenshots, keyboard control changes with focus and save status, and reload persistence; it does not cover checks 1, 5, 6 or 7.
+
 For a new runtime version run `python3 "$SKILL_DIR/scripts/test_runtime.py"`. Structure validation alone does not establish these browser behaviors.

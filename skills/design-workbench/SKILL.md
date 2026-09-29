@@ -101,6 +101,16 @@ Report what was actually verified: skill structure, local preview behavior, prod
 
 ## Visual acceptance before presenting
 
+**Verify in one command, not a chain of browser steps.** Every extra step costs a model round trip, and hand-written browser scripts were the largest single time cost of a run. After the preview (or the saved library work) is up, run once:
+
+```bash
+node "$SKILL_DIR/scripts/verify_preview.mjs" --url <preview or library design URL> --viewport <WxH of the target>
+```
+
+It writes screenshots of the compare view and every direction, checks page overflow and clipped design content, exercises each direction's range controls (its own tweaks, then the base colors and sizes) from the keyboard (value changes, the preview visibly changes, focus stays, save status returns to saved, value restored), checks that a change survives a reload, reports console errors, and, for a library work, confirms it is listed in its project. Pass `--expect-kind component` (or `screen`) after saving to the library so the kind is checked too. A control that changes nothing in the preview fails the run: fix the design instead of working around it. Add `--no-mutate` for a read-only pass (for example on a design the user is actively adjusting). It takes about 20-30 seconds: run it in the foreground with the shell tool's wait/yield time set to at least 90 seconds so the whole result comes back in one call; do not start it in the background and poll. Its `verify-report.json` is the record of the reviewed viewport; do not also hand-write a verification document. Do not re-run it after a fix unless the design or its controls changed. Do not add hand-written browser checks on top of a passing run; if a check you need is missing, say so rather than improvising a script. Fall back to manual browser checks only when Node 22+ or Chrome is unavailable, and say so.
+
+The script does not judge design quality. Look at its screenshots once, in a single pass, before presenting.
+
 Inspect screenshots at the intended viewport, not just the DOM or test output. The user must be able to see the meaningful difference between directions, read the important content, and adjust a focused design while it remains visible. Check clipping, accidental wrapping, distracting tool chrome, and whether declared controls work without losing keyboard focus. Save the reviewed viewport and concrete findings. Functional tests passing does not establish design quality. Astra revises visual failures; the user decides whether to adopt the result.
 
 For changes to shared product UI, compare the affected screens with a representative existing consumer at the same viewport and relevant states. Record whether equivalent actions use the same component rules, including any explicit size or density variants.

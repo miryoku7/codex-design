@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "check:i18n": "node scripts/check-i18n.mjs",
     "test:i18n": "node --test tests/i18n.test.mjs",
-    "test": "npm run check:i18n && node --test tests/i18n.test.mjs tests/library.test.mjs tests/kits.test.mjs && python3 tests/test_library_cli.py"
+    "test": "npm run check:i18n && node --test tests/i18n.test.mjs tests/library.test.mjs tests/kits.test.mjs tests/verify-preview.test.mjs && python3 tests/test_library_cli.py"
   },
   "engines": {
     "node": ">=22"
