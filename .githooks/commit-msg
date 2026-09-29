@@ -1,0 +1,3 @@
+#!/bin/sh
+# commitメッセージの規則を検査する。有効化: npm run setup:hooks
+exec node "$(dirname "$0")/../scripts/check-commit-message.mjs" "$1"

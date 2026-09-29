@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: python3 skills/design-workbench/scripts/test_runtime.py
+      - run: npm run check:repo
+      - run: git diff --check
+      - name: PR title (squash merge uses it as the commit subject)
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node scripts/check-commit-message.mjs --title "$PR_TITLE"
+      - name: Commit message on main
+        if: github.event_name == 'push'
+        run: npm run check:commits -- HEAD~1..HEAD
