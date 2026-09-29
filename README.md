@@ -2,6 +2,16 @@
 
 **Astraが作ったデザインを、保存して育てる作業場。** プロジェクトごとに画面とコンポーネントを探し、比較・微調整・複製を行い、Codex Skillから制作を続けます。
 
+![Codex Designの比較画面。架空のコーヒー定期便のLPが4案並ぶ / The compare view showing four landing-page directions for a fictional coffee subscription](docs/images/compare.jpg)
+
+## できること
+
+1. **頼む** — Codexに `$design-workbench` で「ランディングページを3案作って」と頼むと、Astraが構成の違う案（画像生成を含む）を作り、ライブラリに保存します。
+2. **選んで直す** — ブラウザで案を見比べ、スライダーなどで微調整します。調整値は自動で保存されます。
+3. **その続きから** — 保存した調整と採用した案は、次の依頼で読まれます。「Aが近い。保存した見出しはそのままに、プランを上へ」のように頼めば、元の案を残したまま派生案を作れます。
+4. **プロジェクトで一括管理** — 画面とコンポーネントをプロジェクトごとに整理し、名前での検索、お気に入り、独立した複製、デザインキットの共有ができます。
+
+
 アプリはHono / Cloudflare Workers / D1で構成し、まずローカルD1で動かします。Skill本体は [skills/design-workbench/SKILL.md](skills/design-workbench/SKILL.md)。HTML・CSSを直接編集する単独ワークベンチも利用できます。
 
 MITライセンスのローカルアプリ＋Codex Skillです。OpenAIの公式製品ではありません。ソース一式を取得して使う構成で、npmパッケージとしての公開や共有サーバーでの運用は対象にしていません。
@@ -13,6 +23,34 @@ GUIは日本語・英語に対応しています。画面上部の「日本語 /
 The GUI supports Japanese and English. Use the language selector in the header; your choice is remembered for that origin. Saved design content stays in its original language. The Codex Skill accepts requests in either language: [bilingual examples and language rules](skills/design-workbench/references/language.md).
 
 アプリ、Skill、CLI、テスト、文書を同じリポジトリで管理します。リポジトリのルートから起動・検証し、アプリとSkillを一緒に更新してください。ライブラリのコードは `src/`・`web/`、制作手順と単独ワークベンチは `skills/design-workbench/` にあります。
+
+## 画面の紹介
+
+以下の画像は、架空のコーヒー定期便「名残珈琲」を、このリポジトリのSkillで実際に制作・保存したときの画面です（サービス名・商品・価格・画像はデザイン検討用のサンプルです）。
+
+### プロジェクトの一覧
+
+プロジェクトごとに、画面とコンポーネントの数を確認できます。
+
+![プロジェクト一覧 / Project list](docs/images/projects.png)
+
+### プロジェクトの中
+
+作品をカードで一覧し、「画面」「コンポーネント」やお気に入りで絞り込めます。名前の検索、複製、所属プロジェクトの変更もここからできます。
+
+![プロジェクト内の作品一覧 / Works in a project](docs/images/project-works.jpg)
+
+### 調整
+
+案ごとの調整項目（ここでは見出しの大きさ、ファーストビューの余白、写真の切り取り位置）を動かすと、プレビューへ即時に反映され、値は保存されます。
+
+![調整画面 / Adjust view](docs/images/adjust.jpg)
+
+### 派生案と採用
+
+保存した調整を保ったまま作った派生案（A2）を採用すると、その案が引き継ぎ用の出力に含まれます。元の案Aもそのまま残ります。
+
+![派生案A2を採用した状態 / Adopted variant A2](docs/images/adopt.jpg)
 
 ## 必要な環境
 
