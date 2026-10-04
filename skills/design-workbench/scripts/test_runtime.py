@@ -259,6 +259,45 @@ class FileSessionTests(unittest.TestCase):
     def sources(self):
         return {str(path.relative_to(self.project)): path.read_bytes() for path in self.project.glob("*/*") if path.is_file()}
 
+    def test_parameter_free_save_then_add_controls_preserves_state_and_conflicts(self):
+        path = self.project / "session.json"
+        document = json.loads(path.read_text())
+        document["selectedId"] = "A"
+        variant = document["variants"][0]
+        variant["tokens"] = {}
+        for key in ("baselineTokens", "tweakValues", "baselineTweakValues"):
+            variant.pop(key, None)
+        variant["sources"].pop("controls")
+        (self.project / "A/controls.json").unlink()
+        path.write_bytes(serve.canonical_json(document))
+        initial, revision, warning = self.store.snapshot()
+        self.assertIsNone(warning)
+        self.assertEqual(initial["variants"][0]["tweaks"], [])
+        initial["variants"][0]["notes"] = "keep my note"
+        saved, revision = self.store.save_if_revision(initial, revision)
+        self.assertEqual(saved["variants"][0]["baselineTokens"], {})
+        document = json.loads(path.read_text())
+        definition = {"id": "heading", "type": "range", "label": "Heading", "default": 32,
+                      "min": 24, "max": 48, "cssVar": "--heading-size", "unit": "px"}
+        (self.project / "A/controls.json").write_bytes(serve.canonical_json({"version": 1, "tokens": {}, "tweaks": [definition]}))
+        document["variants"][0]["sources"]["controls"] = "A/controls.json"
+        path.write_bytes(serve.canonical_json(document))
+        with self.assertRaises(serve.RevisionConflict):
+            self.store.save_if_revision(saved, revision)
+        latest, revision, warning = self.store.snapshot()
+        self.assertIsNone(warning)
+        self.assertEqual(latest["variants"][0]["tweakValues"], {"heading": 32})
+        self.assertEqual(latest["variants"][0]["baselineTweakValues"], {"heading": 32})
+        self.assertEqual(latest["variants"][1:], saved["variants"][1:])
+        latest["variants"][0]["tweakValues"]["heading"] = 40
+        changed, revision = self.store.save_if_revision(latest, revision)
+        changed["variants"][0]["tweakValues"] = changed["variants"][0]["baselineTweakValues"].copy()
+        reset, _ = self.store.save_if_revision(changed, revision)
+        self.assertEqual(reset["variants"][0]["tweakValues"]["heading"], 32)
+        self.assertEqual(reset["variants"][0]["notes"], "keep my note")
+        self.assertEqual(reset["selectedId"], "A")
+        self.assertEqual(reset["variants"][0]["html"], saved["variants"][0]["html"])
+
     def test_init_split_layout_and_conflicts_never_overwrite(self):
         manifest = json.loads((self.project / "session.json").read_text())
         self.assertEqual(manifest["version"], 2)

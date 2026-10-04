@@ -69,6 +69,41 @@ class LibraryCLITest(unittest.TestCase):
     def imported(self):
         return library.import_design(self.source, self.url)
 
+    def test_parameter_free_roundtrip_duplicate_and_later_controls(self):
+        manifest_path = self.source / "session.json"
+        manifest = json.loads(manifest_path.read_text())
+        for variant in manifest["variants"]:
+            variant["tokens"] = {}
+            for key in ("baselineTokens", "tweakValues", "baselineTweakValues"):
+                variant.pop(key, None)
+            (self.source / variant["sources"].pop("controls")).unlink()
+        manifest_path.write_bytes(library.json_bytes(manifest))
+        original = tree_bytes(self.source)
+        imported = self.imported()
+        duplicate = self.client.request("POST", f"/api/designs/{imported['id']}/duplicate", {"revision": imported["revision"]})
+        duplicate_before = self.client.request("GET", f"/api/designs/{duplicate['id']}/state")
+        output = self.directory / "edit"
+        library.export_design(imported["id"], output, self.url)
+        self.assertFalse(list(output.glob("*/controls.json")))
+        edited_path = output / "session.json"
+        edited = json.loads(edited_path.read_text())
+        edited["variants"][0]["sources"]["controls"] = "A/controls.json"
+        definition = {"id": "heading", "type": "range", "label": "Heading", "default": 32,
+                      "min": 24, "max": 48, "cssVar": "--heading-size", "unit": "px"}
+        (output / "A/controls.json").write_bytes(library.json_bytes({"version": 1, "tokens": {}, "tweaks": [definition]}))
+        edited_path.write_bytes(library.json_bytes(edited))
+        result = self.command("push", output)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        saved = self.client.request("GET", f"/api/designs/{imported['id']}/state")
+        variant = saved["state"]["variants"][0]
+        self.assertEqual(variant["tokens"], {})
+        self.assertEqual(variant["tweakValues"], {"heading": 32})
+        self.assertEqual(variant["baselineTweakValues"], {"heading": 32})
+        self.assertEqual(variant["notes"], "残すメモ")
+        self.assertEqual(saved["state"]["selectedId"], "B")
+        self.assertEqual(tree_bytes(self.source), original)
+        self.assertEqual(self.client.request("GET", f"/api/designs/{duplicate['id']}/state"), duplicate_before)
+
     def test_import_export_keeps_authored_files_reset_notes_and_adoption(self):
         original = tree_bytes(self.source)
         result = self.command("import", self.source)

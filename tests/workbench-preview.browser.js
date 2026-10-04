@@ -71,6 +71,12 @@
 
   const $ = selector => document.querySelector(selector);
   const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
+  async function parameterStage(phase) {
+    result.phase = phase;
+    if (new URLSearchParams(location.search).has('parameter-screenshots')) {
+      await new Promise(resolve => { window.resumeParameterRegression = resolve; });
+    }
+  }
   const check = (condition, label) => {
     if (!condition) throw new Error(label);
     result.checks.push(label);
@@ -183,6 +189,37 @@
     await saved(() => $('#keepDraft').click());
     unchanged(before, 'retry draft acknowledgement');
     check(stored.variants.find(item => item.id === 'A').notes === '競合で残す下書き', 'draft retry persists note');
+
+    // Removing declarations models a design-only first pass. Add one requested
+    // control later at the existing visual value, without enabling base tokens.
+    await external(state => {
+      const a = state.variants.find(item => item.id === 'A');
+      a.tokens = {}; a.baselineTokens = {}; a.tweaks = [];
+      a.tweakValues = {}; a.baselineTweakValues = {};
+      a.css = 'main{min-height:1400px;padding:24px;background:#f2eee5}h1{font-size:32px}';
+    });
+    await until(() => frame('A').srcdoc.includes('font-size:32px'), 'design-only preview');
+    check($('#baseControls').hidden && $('#resetVariant').hidden && !$('#tweakControls input') && !$('#tokenControls input'), 'parameter-free variant hides adjustment inputs and reset');
+    await parameterStage('parameter-free');
+    await saved(() => input('#notesInput', 'パラメータなしでも保存'));
+    check(stored.selectedId === 'A' && stored.variants.find(item => item.id === 'A').notes === 'パラメータなしでも保存', 'design-only variant saves notes and preserves adoption');
+    const siblings = snapshot().filter(item => item.id !== 'A');
+    await external(state => {
+      const a = state.variants.find(item => item.id === 'A');
+      a.tweaks = variant('A').tweaks;
+      a.tweakValues = { heading: 32 }; a.baselineTweakValues = { heading: 32 };
+      a.css = a.css.replace('font-size:32px', 'font-size:var(--heading-size)');
+    });
+    await until(() => $('#tweak-heading') && frame('A').srcdoc.includes('--heading-size:32px'), 'later parameter keeps appearance');
+    check($('#baseControls').hidden && !$('#resetVariant').hidden && $('#tweak-heading').value === '32', 'later custom parameter appears without base controls');
+    await parameterStage('parameter-added');
+    await saved(() => input('#tweak-heading', 40));
+    check(frame('A').srcdoc.includes('--heading-size:40px'), 'later parameter updates its target binding');
+    await parameterStage('parameter-adjusted');
+    await saved(() => $('#resetVariant').click());
+    check(stored.variants.find(item => item.id === 'A').tweakValues.heading === 32 && stored.selectedId === 'A' && $('#notesInput').value === 'パラメータなしでも保存', 'later parameter reset preserves note and adoption');
+    await parameterStage('parameter-reset');
+    unchanged(siblings, 'later parameters leave siblings intact');
 
     // An active variant removed by a source revision must normalize focus safely.
     await external(state => { state.variants = state.variants.filter(item => item.id !== 'A'); state.selectedId = null; });

@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { findChrome, parseArgs, summarize, SAVED } from '../skills/design-workbench/scripts/verify_preview.mjs';
+import { findChrome, parseArgs, summarize, SAVED, expectedRangeControls } from '../skills/design-workbench/scripts/verify_preview.mjs';
+
+test('range verification follows declarations including parameter-free and color-only designs', () => {
+  assert.equal(expectedRangeControls({ tokens: {} }), 0);
+  assert.equal(expectedRangeControls({ tokens: {}, tweaks: [{ type: 'color' }] }), 0);
+  assert.equal(expectedRangeControls({ tokens: {}, tweaks: [{ type: 'range' }] }), 1);
+  assert.equal(expectedRangeControls({ tokens: { spacing: 24, fontSize: 16, radius: 8 }, tweaks: [{ type: 'range' }] }), 4);
+});
 
 test('parseArgs accepts a loopback URL and defaults', () => {
   const o = parseArgs(['--url', 'http://127.0.0.1:8787/designs/abc']);

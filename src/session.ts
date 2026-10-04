@@ -48,6 +48,7 @@ export function requiredString(value: unknown, field: string, maximum: number): 
 function number(value: unknown): value is number { return typeof value === 'number' && Number.isFinite(value); }
 function tokens(value: unknown, field: string): void {
   object(value, field);
+  if (Object.keys(value).length === 0) return;
   for (const key of ['accent', 'background', 'text']) {
     if (typeof value[key] !== 'string' || !COLOR.test(value[key])) fail(`${field}.${key} must be a hexadecimal color`);
   }

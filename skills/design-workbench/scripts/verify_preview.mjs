@@ -31,6 +31,11 @@ import { pathToFileURL } from 'node:url';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const SAVED = /保存済み|saved/i;
 
+export function expectedRangeControls(variant) {
+  return ['spacing', 'fontSize', 'radius'].filter(key => Object.hasOwn(variant.tokens || {}, key)).length
+    + (variant.tweaks || []).filter(control => control.type === 'range').length;
+}
+
 export function parseArgs(argv) {
   const out = { viewport: '1440x900', controls: 4, mutate: true, lang: null, out: null, url: null, expectKind: null, library: true };
   for (let i = 0; i < argv.length; i++) {
@@ -199,6 +204,11 @@ export async function verify(opts) {
       return { out, checks, shots, consoleErrors, ms: Date.now() - started };
     }
     await waitFor(statusSaved, 8000);
+    const statePath = new URL(opts.url).pathname.match(/^\/designs\/([^/]+)\/?$/);
+    const stateUrl = statePath ? `/api/designs/${statePath[1]}/state` : '/api/state';
+    const stateResponse = await fetch(new URL(stateUrl, opts.url));
+    if (!stateResponse.ok) throw new Error(`Cannot read declared controls: ${stateResponse.status}`);
+    const declared = (await stateResponse.json()).state.variants;
     const views = await ev(`[...document.querySelectorAll('#variantTabs .view-button')].map(b => ({ id: b.dataset.view, name: b.innerText.trim().replace(/\\s+/g, ' ') }))`);
     add('load', true, `${views.length} directions: ${views.map((v) => v.name).join(' / ')}`);
 
@@ -218,7 +228,9 @@ export async function verify(opts) {
       await sleep(500);
       await shot(`direction-${v.id}`);
       const ranges = await listRanges();
-      add(`${v.id}: adjustment controls present`, ranges.length > 0, `${ranges.length} range control(s)`);
+      const definition = declared.find(item => item.id === v.id);
+      const expectedRanges = definition ? expectedRangeControls(definition) : -1;
+      add(`${v.id}: declared range controls rendered`, ranges.length === expectedRanges, `${ranges.length} of ${expectedRanges} range control(s); zero is valid for a design without range parameters`);
       const inspectorVisible = await ev(`(() => { const i = document.getElementById('inspector'); return !!i && !i.hidden && i.getBoundingClientRect().width > 0; })()`);
       add(`${v.id}: inspector visible next to the design`, inspectorVisible);
       if (!opts.mutate) continue;

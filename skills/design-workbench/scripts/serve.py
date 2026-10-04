@@ -77,6 +77,8 @@ def _require_string(value: Any, field: str, maximum: int) -> None:
 def _validate_tokens(tokens: Any, field: str = "tokens") -> None:
     if not isinstance(tokens, dict):
         raise SessionValidationError(f"{field} must be an object")
+    if not tokens:
+        return  # No base parameters; the design is authored directly in CSS.
     for key in TOKEN_KEYS:
         if key not in tokens:
             raise SessionValidationError(f"{field}.{key} is required")
@@ -180,9 +182,10 @@ def _source_parts(value: Any, field: str) -> list[str]:
 
 
 def _validate_sources(value: Any, field: str) -> None:
-    if not isinstance(value, dict) or set(value) != set(SOURCE_KEYS):
-        raise SessionValidationError(f"{field} requires html, css, and controls paths")
-    for key, extension in SOURCE_KEYS.items():
+    if not isinstance(value, dict) or not {"html", "css"} <= set(value) <= set(SOURCE_KEYS):
+        raise SessionValidationError(f"{field} requires html and css paths, with optional controls")
+    for key in value:
+        extension = SOURCE_KEYS[key]
         parts = _source_parts(value[key], f"{field}.{key}")
         if not parts[-1].endswith(extension) or value[key] == SESSION_NAME:
             raise SessionValidationError(f"{field}.{key} must name a {extension} source file")
@@ -355,6 +358,10 @@ def hydrate_session(project: Path, document: dict[str, Any]) -> tuple[dict[str, 
                     variant[kind] = raw.decode("utf-8")
                 except UnicodeDecodeError as error:
                     raise SessionValidationError(f"{relative} must be UTF-8 text") from error
+        variant.setdefault("tweaks", [])
+        variant.setdefault("baselineTokens", copy.deepcopy(variant["tokens"]))
+        variant.setdefault("tweakValues", {})
+        variant.setdefault("baselineTweakValues", {})
     validate_session(state, hydrated=True)
     return state, hashes
 

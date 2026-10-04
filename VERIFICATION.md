@@ -121,3 +121,23 @@ Skillは構造・参照・言語方針の確認までで、別のCodex環境か�
 - クラウドへのデプロイ、複数利用者での運用、リモートD1、更新後の古い版への巻き戻し。
 
 デザイン制作は同梱SkillのAstra方針に従います。テスト用メタデータだけを、モデルを実際に呼び出した証拠として扱いません。
+
+## 2026-10-05: 初回のパラメータを任意化
+
+初回制作のSkill手順はパラメータなしを既定とし、指定された場合だけ初回から作ります。後からの追加手順は [parameters.md](skills/design-workbench/references/parameters.md)。登録済み `design-workbench` はこのリポジトリの正本へのsymlinkです。既存のパラメータ付き作品は従来どおり使えます。
+
+| 確認 | 結果 |
+| --- | --- |
+| `npm run typecheck` | PASS |
+| `PATH="/opt/homebrew/bin:$PATH" npm test` | Node 40件・CLI 13件 PASS。一時ローカルD1で検証 |
+| `python3 skills/design-workbench/scripts/test_runtime.py` | 20件 PASS |
+| 変更したJavaScriptの `node --check` / `git diff --check` | PASS |
+| Chromeのpreview lifecycle fixture | 68チェック PASS。管理ブラウザの専用セッションを使用 |
+| 1440×1000 / 390×844の画面確認 | パラメータなしの操作欄非表示、後付け後の1スライダー、メモ・採用・プレビューの保持を確認。モバイルの横はみ出し0px |
+| 後付けの実CSS | sandbox iframe内で見出し32px→追加直後32px→調整40px→リセット32pxを確認 |
+
+ファイル保存ではcontrols参照なしから保存できること、新規定義の初期値とリセット値、source変更後のstale保存の拒否、メモ・採用・他案の保持を確認しました。CLIではcontrolsなしのimport/export・独立複製・controls追加のconditional push、元作品の保持を確認しました。基本tokensなしの独自コントロールも利用できます。
+
+最初のsandbox実行ではHTTP待受が拒否されたため、同じ一時領域のテストを許可されたホスト実行で確認しました。npmの子プロセスが選ぶPythonに実行形式エラーがあったため、ARM版Pythonを選ぶPATHで実行しています。ブラウザfixtureで同一originのDOM読み取りを試した最初の追加検査はsandbox iframeのためタイムアウトしました。runtimeのsandboxを維持し、fixtureはソース反映を検査、実フォントはPlaywrightのframe操作で検証しました。修正後の68チェックはPASSです。
+
+[画面証跡](docs/verification/2026-10-05-optional-parameters/README.md)。現用作品・現用D1を変更せず、共有assetsを再生成しました。デザイン制作やAstraの呼び出しは行っていません。初回の短縮幅、別Codexセッションでの制作依頼、Safari/Firefoxは未検証。commit/push/deployは行っていません。

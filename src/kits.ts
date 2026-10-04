@@ -91,7 +91,7 @@ export function validateKitContent(value: unknown): KitContent {
 
 export function tokensFromVariant(variant: Variant, language: Locale = 'ja'): KitToken[] {
   const descriptions: Record<string, string> = kitMessages[language];
-  const tokens: KitToken[] = ['accent', 'background', 'text', 'spacing', 'fontSize', 'radius'].map((name) => ({
+  const tokens: KitToken[] = ['accent', 'background', 'text', 'spacing', 'fontSize', 'radius'].filter((name) => Object.hasOwn(variant.tokens, name)).map((name) => ({
     name: name === 'fontSize' ? 'font-size' : name,
     type: ['accent', 'background', 'text'].includes(name) ? 'color' : 'dimension',
     value: ['accent', 'background', 'text'].includes(name) ? String(variant.tokens[name]) : `${variant.tokens[name]}px`,

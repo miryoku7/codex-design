@@ -35,10 +35,12 @@ def split_inline_session(inline: dict) -> tuple[dict, dict[str, bytes]]:
         # A persisted reset baseline is the best available original author default
         # for legacy tokens. Tweak definitions already carry explicit defaults.
         controls = {"version": 1, "tokens": copy.deepcopy(variant["baselineTokens"]), "tweaks": tweaks}
-        variant["sources"] = {"html": f"{identifier}/index.html", "css": f"{identifier}/style.css", "controls": f"{identifier}/controls.json"}
+        variant["sources"] = {"html": f"{identifier}/index.html", "css": f"{identifier}/style.css"}
         files[variant["sources"]["html"]] = html.encode("utf-8")
         files[variant["sources"]["css"]] = css.encode("utf-8")
-        files[variant["sources"]["controls"]] = json_bytes(controls)
+        if controls["tokens"] or tweaks:
+            variant["sources"]["controls"] = f"{identifier}/controls.json"
+            files[variant["sources"]["controls"]] = json_bytes(controls)
     validate_session(document)
     return document, files
 

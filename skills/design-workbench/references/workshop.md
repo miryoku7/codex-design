@@ -23,16 +23,16 @@ homepage/
   A/
     index.html
     style.css
-    controls.json
+    controls.json  # optional; created only when parameters are requested
   B/...
   C/...
 ```
 
-The authored source of each design lives in its three files. `session.json` owns the brief, variant metadata, source references, adopted/viewed IDs, notes, current adjustment values, and reset baselines. Read both layers on continuation. Do not copy HTML/CSS into a v2 session or write the browser's hydrated API response directly to disk.
+The authored source of each design lives in its HTML/CSS files and optional controls file. Initial generation defaults to `tokens: {}` with no `sources.controls`; no parameter definitions or bindings are required. See [parameters.md](parameters.md) for the minimal manifest and later additions. `session.json` owns the brief, variant metadata, source references, adopted/viewed IDs, notes, current adjustment values, and reset baselines. Read both layers on continuation. Do not copy HTML/CSS into a v2 session or write the browser's hydrated API response directly to disk.
 
 For generated imagery, follow [image-assets.md](image-assets.md): keep original files under the session's `assets/`, embed compact `data:` images in HTML/CSS, and check the source/session size limits. The preview does not load relative or external image URLs, and library exports do not bundle the separate asset directory.
 
-A v2 variant retains `id`, `name`, `rationale`, optional `summary`/`designer`, and the state fields below:
+A v2 variant retains `id`, `name`, `rationale`, optional `summary`/`designer`, and saved state. The example below has requested parameters; for the default parameter-free variant use the minimal example in `parameters.md`:
 
 ```json
 {
@@ -58,7 +58,7 @@ A v2 variant retains `id`, `name`, `rationale`, optional `summary`/`designer`, a
 }
 ```
 
-`A/controls.json` declares author defaults and the controls useful for this design:
+When parameters are requested, `A/controls.json` declares author defaults and the requested controls useful for this design:
 
 ```json
 {
@@ -91,7 +91,7 @@ After a verified invocation, store `designer: {"model": "gpt-6-astra", "role": "
 
 ## Design-specific controls
 
-In addition to the six base `tokens`, Astra declares `tweaks` in each `controls.json`, with current values in the session variant’s `tweakValues` and reset values in `baselineTweakValues`. The browser API hydrates these definitions into `variant.tweaks`. Every control has a stable `id` and a short user-facing `label`. Use either `cssVar` (a CSS custom-property name) or `attribute` (a safe data-attribute name), never both. Values are applied on the iframe's `document.documentElement`.
+Base `tokens` may be `{}` (no base controls) or the existing complete six-token set. Only declare the six-token set when all its controls are useful and wired to the design. Astra optionally declares `tweaks` in each `controls.json`, with current values in the session variant’s `tweakValues` and reset values in `baselineTweakValues`. The browser API hydrates these definitions into `variant.tweaks`. Every control has a stable `id` and a short user-facing `label`. Use either `cssVar` (a CSS custom-property name) or `attribute` (a safe data-attribute name), never both. Values are applied on the iframe's `document.documentElement`.
 
 A select uses `options: [{"value": "compact", "label": "コンパクト"}, {"value": "spacious", "label": "ゆったり"}]`. Its CSS could respond to `:root[data-density="compact"]` or to a declared CSS variable. The values must correspond to real CSS behavior, not controls that only update a form field.
 
@@ -134,7 +134,7 @@ Wait until the browser says saved and stop that session's server before migratio
 
 1. Same content and values across initial directions, with a meaningful composition difference.
 2. Compare and focus views usable at the intended viewport; focused design and its controls visible together, brief not dominating the canvas.
-3. A tweak changes its own option, leaving other options intact.
+3. Parameter-free designs have no adjustment inputs or reset button. When parameters are declared, a tweak changes its own option, leaving other options intact.
 4. Adopted selection, active review option, brief, notes, viewport, and values survive a reload; reset returns to that option's baseline without silently adopting it.
 5. JSON and handoff export contain the selected direction and final values.
 6. External session changes become visible without silently losing a browser draft.
